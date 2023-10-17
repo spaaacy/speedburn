@@ -1,4 +1,5 @@
 import Nav from "@/components/Nav";
+import { Web3Provider } from "@/context/Web3Context";
 import "@/styles/global.css";
 
 export const metadata = {
@@ -9,8 +10,10 @@ export const RootLayout = ({ children }) => {
   return (
     <html lang="en">
       <body className="bg-beige">
-        <Nav />
-        {children}
+        <Web3Provider>
+          <Nav />
+          {children}
+        </Web3Provider>
       </body>
     </html>
   );

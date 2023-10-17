@@ -5,11 +5,11 @@ import signIn from "@/util/signIn";
 import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { Web3Context } from "@/context/Web3Context";
 
 const Nav = () => {
-  const [provider, setProvider] = useState(null);
-  const [account, setAccount] = useState(null);
+  const { provider, setProvider, account, setAccount, initializeContracts } = useContext(Web3Context);
 
   useEffect(() => {
     if (window.ethereum == null) {
@@ -18,6 +18,8 @@ const Nav = () => {
       setProvider(new ethers.BrowserProvider(window.ethereum));
     }
 
+    initializeContracts();
+
     window.ethereum.on("accountsChanged", async () => {
       signIn(setAccount);
     });
@@ -25,11 +27,14 @@ const Nav = () => {
 
   return (
     <nav className="sticky top-0 flex justify-between items-center padding max-width">
-      <Link href="/">
-        <h1 className="font-bold text-3xl">
-          Project <span className="italic">SpeedBurn</span>
-        </h1>
-      </Link>
+      <div className="flex justify-center items-center gap-4">
+        <Link href="/">
+          <h1 className="font-bold text-3xl">
+            Project <span className="italic">SpeedBurn</span>
+          </h1>
+        </Link>
+        <Link href="/marketplace">Marketplace</Link>
+      </div>
       {account ? (
         <div className="flex-center gap-4">
           <button type="button" className="nav_button" onClick={() => setAccount(null)}>

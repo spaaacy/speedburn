@@ -1,32 +1,39 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const [owner] = await hre.ethers.getSigners();
 
-  const lockedAmount = hre.ethers.parseEther("0.001");
+  console.log("Deploying Account NFT");
+  const account = await hre.ethers.deployContract("Account");
+  await account.waitForDeployment();
+  console.log(`Account NFT has been deployed at address: ${await account.getAddress()}`);
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  for (let i = 0; i < 50; i++) {
+    let transaction = await account.mint();
+    await transaction.wait();
+  }
 
-  await lock.waitForDeployment();
+  console.log("Deploying Marketplace Contract");
+  const Marketplace = await hre.ethers.getContractFactory("Marketplace");
+  const marketplace = await Marketplace.deploy(await account.getAddress(), 2);
+  console.log(`Marketplace contract deployed at address: ${await marketplace.getAddress()}`);
 
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  console.log("Approving NFTs for sale...");
+  for (let i = 0; i < 50; i++) {
+    let transaction = await account.approve(await marketplace.getAddress(), i);
+    await transaction.wait();
+  }
+
+  console.log("NFTs approved for sale");
+
+  for (let i = 0; i < 50; i++) {
+    let transaction = await marketplace.connect(owner).list(i);
+    await transaction.wait();
+    console.log(`Listing Account ${i}`);
+  }
+  console.log("All accounts have been listed!");
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
