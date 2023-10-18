@@ -9,7 +9,7 @@ export const metadata = {
 export const RootLayout = ({ children }) => {
   return (
     <html lang="en">
-      <body className="bg-beige">
+      <body className="bg-jet">
         <Web3Provider>
           <Nav />
           {children}

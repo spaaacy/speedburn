@@ -23,6 +23,7 @@ contract Marketplace {
     function purchase(uint256 _nftId) public payable {
         require(isListed[_nftId], "NFT is not listed in the marketplace");
         require(msg.value >= price, "Ether transferred is insufficient");
+        isListed[_nftId] = false;
         IERC721(nftAddress).approve(address(this), _nftId);
         IERC721(nftAddress).transferFrom(address(this), msg.sender, _nftId);
     }

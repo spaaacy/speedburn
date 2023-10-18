@@ -7,9 +7,17 @@
     max-width: 1080px;
     margin: 0 auto;
   }
+
+  .action-button {
+    @apply font-semibold rounded-full text-jet bg-[#FAF7FF] border-[1.5px] border-jet px-4 py-2
+  }
 }
 
 @layer utilities {
+  .filter-white {
+    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(163deg) brightness(104%) contrast(105%);
+  }
+  
   .flex-center {
     @apply flex justify-center items-center
   }

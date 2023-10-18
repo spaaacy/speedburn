@@ -1,50 +1,34 @@
 "use client";
 
 import formatAddress from "@/util/formatAddress";
-import signIn from "@/util/signIn";
-import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { Web3Context } from "@/context/Web3Context";
 
 const Nav = () => {
-  const { provider, setProvider, account, setAccount, initializeContracts } = useContext(Web3Context);
-
-  useEffect(() => {
-    if (window.ethereum == null) {
-      setProvider(new ethers.getDefaultProvider());
-    } else {
-      setProvider(new ethers.BrowserProvider(window.ethereum));
-    }
-
-    initializeContracts();
-
-    window.ethereum.on("accountsChanged", async () => {
-      signIn(setAccount);
-    });
-  }, []);
+  const { signIn, signOut, account } = useContext(Web3Context);
 
   return (
-    <nav className="sticky top-0 flex justify-between items-center padding max-width">
-      <div className="flex justify-center items-center gap-4">
+    <nav className="bg-jet sticky top-0 flex-center padding max-width">
+      <div className="flex flex-1 justify-start items-baseline gap-4">
         <Link href="/">
-          <h1 className="font-bold text-3xl">
+          <h1 className="font-bold text-3xl mr-4 text-white">
             Project <span className="italic">SpeedBurn</span>
           </h1>
         </Link>
-        <Link href="/marketplace">Marketplace</Link>
+        <Link href="/marketplace" className="font-bold text-xl text-white">Marketplace</Link>
       </div>
       {account ? (
         <div className="flex-center gap-4">
-          <button type="button" className="nav_button" onClick={() => setAccount(null)}>
+          <button type="button" className="action-button" onClick={() => signOut()}>
             Sign Out
           </button>
-          <p className="text-black font-semibold italic">{formatAddress(account)}</p>
-          <Image src={"assets/icons/account.svg"} alt="user_image" width={45} height={45} />
+          <p className="font-semibold italic text-white">{formatAddress(account)}</p>
+          <Image src={"assets/icons/account.svg"} className="filter-white" alt="user_image" width={45} height={45} />
         </div>
       ) : (
-        <button className="nav_button" type="button" onClick={() => signIn(setAccount)}>
+        <button className="action-button" type="button" onClick={() => signIn()}>
           Sign In
         </button>
       )}
