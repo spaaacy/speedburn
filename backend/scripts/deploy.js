@@ -3,6 +3,7 @@ const hre = require("hardhat");
 async function main() {
   // Get account
   const [owner] = await hre.ethers.getSigners();
+  const nftCount = 5;
 
   // Deploy account nft contract
   console.log("Deploying Account NFT");
@@ -18,26 +19,26 @@ async function main() {
 
   // Deploy blog contract
   console.log("Deploying Blog NFT");
-  const blog = await hre.ethers.deployContract("Blog");
-  await blog.waitForDeployment();
+  const Blog = await hre.ethers.getContractFactory("Blog");
+  const blog = await Blog.deploy(await account.getAddress());
   console.log(`Blog NFT deployed at address: ${await blog.getAddress()}`);
 
   // Mint 50 account NFTs
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < nftCount; i++) {
     let transaction = await account.mint();
     await transaction.wait();
   }
 
   // Approve NFTs for transfer
   console.log("Approving NFTs for transfer...");
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < nftCount; i++) {
     let transaction = await account.approve(await marketplace.getAddress(), i);
     await transaction.wait();
   }
   console.log("NFTs approved for transfer");
   // List NFTs on marketplace
   console.log("Listing NFTs on marketplace...");
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < nftCount; i++) {
     let transaction = await marketplace.connect(owner).list(i);
     await transaction.wait();
   }

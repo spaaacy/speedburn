@@ -57,6 +57,7 @@ export const Web3Provider = ({ children }) => {
   }
   
   const createPost = async (post) => {
+    // if (!isRegistered) return;
     const { title, body } = post;
     const signer = await provider.getSigner();
     const transaction = await blog.connect(signer).mintPost(title, body, Date.now());
@@ -94,6 +95,7 @@ export const Web3Provider = ({ children }) => {
         accountNFT,
         blog,
         posts,
+        isRegistered,
         retrieveListings,
         purchaseAccount,
         signIn,
