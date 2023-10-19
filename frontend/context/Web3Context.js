@@ -20,6 +20,7 @@ export const Web3Provider = ({ children }) => {
   const [accountNFT, setAccountNFT] = useState(null);
   const [blog, setBlog] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     if (window.ethereum == null) {
@@ -43,8 +44,19 @@ export const Web3Provider = ({ children }) => {
     await transaction.wait();
   };
 
+  const getPosts = async () => {
+    const posts = [];
+    const signer = await provider.getSigner();
+    const totalPosts = await blog.connect(signer).nextPostId();
+    for (let i = 0; i < totalPosts; i++) {
+      const post = await blog.connect(signer).posts(i);
+      posts.push(post);
+    }
+    setPosts(posts);
+    console.log(posts);
+  }
+  
   const createPost = async (post) => {
-    if (!blog) return;
     const { title, body } = post;
     const signer = await provider.getSigner();
     const transaction = await blog.connect(signer).mintPost(title, body, Date.now());
@@ -80,11 +92,14 @@ export const Web3Provider = ({ children }) => {
         account,
         marketplace,
         accountNFT,
+        blog,
+        posts,
         retrieveListings,
         purchaseAccount,
         signIn,
         signOut,
         createPost,
+        getPosts,
       }}
     >
       {children}

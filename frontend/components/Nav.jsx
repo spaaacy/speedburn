@@ -11,16 +11,24 @@ const Nav = () => {
 
   return (
     <nav className="bg-jet sticky top-0 flex-center padding max-width">
-      <div className="flex flex-1 justify-start items-baseline gap-4">
+      <div className="flex flex-1 justify-start items-baseline gap-6">
         <Link href="/">
           <h1 className="font-bold text-3xl mr-4 text-white">
             Project <span className="italic">SpeedBurn</span>
           </h1>
         </Link>
-        <Link href="/marketplace" className="font-bold text-xl text-white">Marketplace</Link>
+        {/* TODO: Hide create post when in create-post page */}
+        {account && (
+        <Link href="/create-post" className="font-bold text-xl text-white">
+          Create post
+        </Link>
+        )}
+        <Link href="/marketplace" className="font-bold text-xl text-white">
+          Marketplace
+        </Link>
       </div>
       {account ? (
-        <div className="flex-center gap-4">
+        <div className="flex-center gap-3">
           <button type="button" className="action-button" onClick={() => signOut()}>
             Sign Out
           </button>
