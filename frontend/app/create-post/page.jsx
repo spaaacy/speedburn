@@ -14,13 +14,13 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="m-auto flex items-center justify-start md:w-[50%] h-[70%] rounded-xl relative bg-white padding">
+    <main className="m-auto flex items-center justify-start md:w-[50%] h-[70%] rounded-xl relative bg-white padding">
       {/* {account ? ( */}
       {true ? (
         // isRegistered ? (
         true ? (
           <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-4 h-full w-full">
-            <input className="input-box" placeholder="Title" type="text" onChange={(e) => setTitle(e.target.value)} />
+            <input className="border rounded-md p-3 border-slate-400" placeholder="Title" type="text" onChange={(e) => setTitle(e.target.value)} />
             <textarea
               className="input-box h-full"
               placeholder="Body"
@@ -37,7 +37,7 @@ const CreatePost = () => {
       ) : (
         <p>Please login to make posts</p>
       )}
-    </div>
+    </main>
   );
 };
 

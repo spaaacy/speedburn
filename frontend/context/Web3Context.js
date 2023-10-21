@@ -5,6 +5,7 @@ import config from "@/public/config.json";
 import accountArtifact from "@/public/abi/Account.json";
 import marketplaceArtifact from "@/public/abi/Marketplace.json";
 import blogArtifact from "@/public/abi/Blog.json";
+import profileArtifact from "@/public/abi/Profile.json";
 import { ethers } from "ethers";
 
 export const Web3Context = React.createContext();
@@ -13,12 +14,14 @@ export const Web3Provider = ({ children }) => {
   const { abi: accountAbi } = accountArtifact;
   const { abi: marketplaceAbi } = marketplaceArtifact;
   const { abi: blogAbi } = blogArtifact;
+  const { abi: profileAbi } = profileArtifact;
 
   const [provider, setProvider] = useState(null);
   const [account, setAccount] = useState(null);
   const [marketplace, setMarketplace] = useState(null);
   const [accountNFT, setAccountNFT] = useState(null);
   const [blog, setBlog] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [posts, setPosts] = useState([]);
 
@@ -29,12 +32,15 @@ export const Web3Provider = ({ children }) => {
       setProvider(new ethers.BrowserProvider(window.ethereum));
     }
 
+    // Initialize contracts
     const accountNFT = new ethers.Contract(config.account.address, accountAbi, provider);
     setAccountNFT(accountNFT);
     const marketplace = new ethers.Contract(config.marketplace.address, marketplaceAbi, provider);
     setMarketplace(marketplace);
     const blog = new ethers.Contract(config.blog.address, blogAbi, provider);
     setBlog(blog);
+    const profile = new ethers.Contract(config.profile.address, profileAbi, provider);
+    setProfile(profile);
   }, []);
 
   const purchaseAccount = async (id) => {
@@ -54,13 +60,21 @@ export const Web3Provider = ({ children }) => {
     }
     setPosts(posts);
     console.log(posts);
-  }
-  
+  };
+
   const createPost = async (post) => {
-    // if (!isRegistered) return;
+    if (!isRegistered) return;
     const { title, body } = post;
     const signer = await provider.getSigner();
     const transaction = await blog.connect(signer).mintPost(title, body, Date.now());
+    await transaction.wait();
+  };
+
+  const createUser = async (user) => {
+    if (!profile || !isRegistered) return;
+    const { username } = user;
+    const signer = await provider.getSigner();
+    const transaction = await profile.connect(signer).createUser(username);
     await transaction.wait();
   };
 
@@ -102,6 +116,7 @@ export const Web3Provider = ({ children }) => {
         signOut,
         createPost,
         getPosts,
+        createUser,
       }}
     >
       {children}

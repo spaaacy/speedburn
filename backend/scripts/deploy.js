@@ -23,6 +23,12 @@ async function main() {
   const blog = await Blog.deploy(await account.getAddress());
   console.log(`Blog NFT deployed at address: ${await blog.getAddress()}`);
 
+  // Deploy profile contract
+  console.log("Deploying Profile Contract");
+  const Profile = await hre.ethers.getContractFactory("Profile");
+  const profile = await Profile.deploy(await account.getAddress());
+  console.log(`Profile contract deployed at address: ${await profile.getAddress()}`);
+
   // Mint 50 account NFTs
   for (let i = 0; i < nftCount; i++) {
     let transaction = await account.mint();
