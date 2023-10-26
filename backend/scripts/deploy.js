@@ -49,6 +49,17 @@ async function main() {
     await transaction.wait();
   }
   console.log("All accounts have been listed!");
+
+  // Purchase account
+  console.log("Account #0: Purchasing account NFT");
+  let transaction = await marketplace.connect(owner).purchase(0, {value: 2});
+  await transaction.wait();
+  console.log("Account #0: Account purchased!");
+  console.log("Account #0: Creating user profile");
+  transaction = await profile.connect(owner).createUser("spacy", "https://is5-ssl.mzstatic.com/image/thumb/Purple128/v4/cf/43/85/cf438590-1e50-4ee2-c0a8-96fa85501abb/source/512x512bb.jpg");
+  transaction.wait();
+  console.log("Account #0: User profile created!");
+  
 }
 
 main().catch((error) => {

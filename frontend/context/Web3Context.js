@@ -11,19 +11,28 @@ import { ethers } from "ethers";
 export const Web3Context = React.createContext();
 
 export const Web3Provider = ({ children }) => {
+  // Contract ABIs
   const { abi: accountAbi } = accountArtifact;
   const { abi: marketplaceAbi } = marketplaceArtifact;
   const { abi: blogAbi } = blogArtifact;
   const { abi: profileAbi } = profileArtifact;
 
+  // Misc
   const [provider, setProvider] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [profileCache, setProfileCache] = useState({});
+
+  // User
   const [account, setAccount] = useState(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [username, setUsername] = useState("");
+  const [imageURL, setImageURL] = useState("");
+  
+  // Contracts
   const [marketplace, setMarketplace] = useState(null);
   const [accountNFT, setAccountNFT] = useState(null);
   const [blog, setBlog] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     if (window.ethereum == null) {
@@ -52,42 +61,55 @@ export const Web3Provider = ({ children }) => {
 
   const getPosts = async () => {
     const posts = [];
+    const users = {};
     const signer = await provider.getSigner();
     const totalPosts = await blog.connect(signer).nextPostId();
     for (let i = 0; i < totalPosts; i++) {
       const post = await blog.connect(signer).posts(i);
+      if (!users[post[3]]) {
+        const user = await profile.connect(signer).profiles(post[3]);
+        users[post[3]] = user;
+      }
       posts.push(post);
     }
     setPosts(posts);
-    console.log(posts);
+    setProfileCache(users);
   };
 
   const createPost = async (post) => {
     if (!isRegistered) return;
-    const { title, body } = post;
+    const { body } = post;
     const signer = await provider.getSigner();
-    const transaction = await blog.connect(signer).mintPost(title, body, Date.now());
+    const transaction = await blog.connect(signer).mintPost("", body, Date.now());
     await transaction.wait();
   };
 
   const createUser = async (user) => {
+    console.log({profile});
     if (!profile || !isRegistered) return;
-    const { username } = user;
+    const { username, imageURL } = user;
+    console.log({username, imageURL});
     const signer = await provider.getSigner();
-    const transaction = await profile.connect(signer).createUser(username);
+    const transaction = await profile.connect(signer).createUser(username, imageURL);
     await transaction.wait();
   };
 
   const signIn = async () => {
-    if (!accountNFT) return;
+    if (!accountNFT || !profile) return;
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     setAccount(accounts[0]);
     const signer = await provider.getSigner();
     setIsRegistered(await accountNFT.connect(signer).balanceOf(accounts[0]));
+    const user = await profile.connect(signer).profiles(accounts[0]);
+    setUsername(user[0]);
+    setImageURL(user[1]);
   };
 
   const signOut = () => {
     setAccount(null);
+    setIsRegistered(false);
+    setUsername("");
+    setImageURL("");
   };
 
   const retrieveListings = async (updateListedItems) => {
@@ -109,7 +131,10 @@ export const Web3Provider = ({ children }) => {
         accountNFT,
         blog,
         posts,
+        profileCache,
         isRegistered,
+        username,
+        imageURL,
         retrieveListings,
         purchaseAccount,
         signIn,

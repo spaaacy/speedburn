@@ -5,32 +5,43 @@ import Image from "next/image";
 import Link from "next/link";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Web3Context } from "@/context/Web3Context";
+import UserImage from "./UserImage";
 
-const NavAccount = ({ menuRef, account, signOut, showDropdown, setShowDropdown }) => {
+const NavAccount = ({
+  menuRef,
+  signOut,
+  showDropdown,
+  setShowDropdown,
+  username,
+  imageURL,
+}) => {
   return (
     <div className="relative flex justify-end items-center gap-3">
-      <p className="font-semibold italic text-white">{formatAddress(account)}</p>
-      <Image
-        src={"assets/icons/account.svg"}
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="hover:cursor-pointer filter-white"
-        alt="user_image"
-        width={45}
-        height={45}
-      />
+      {console.log({ username, imageURL })}
+      <p className="font-semibold italic text-white">{username}</p>
+        <UserImage onClick={() => setShowDropdown(!showDropdown)} imageURL={imageURL} />
       <div
         ref={menuRef}
-        className={`absolute top-14 bg-white shadow-xl rounded-xl p-4 ${showDropdown ? "block" : "hidden"}`}
+        className={`absolute top-14 bg-white shadow-xl rounded-xl p-4 ${
+          showDropdown ? "block" : "hidden"
+        }`}
       >
         <ul className="flex flex-col justify-center items-end gap-1">
           <li>
-            <a href="/account" className="font-semibold overflow-hidden whitespace-nowrap">
+            <a
+              href="/account"
+              className="font-semibold overflow-hidden whitespace-nowrap"
+            >
               Account
             </a>
           </li>
           <hr className="w-full" />
           <li>
-            <button type="button" className="font-semibold overflow-hidden whitespace-nowrap" onClick={() => signOut()}>
+            <button
+              type="button"
+              className="font-semibold overflow-hidden whitespace-nowrap"
+              onClick={() => signOut()}
+            >
               Sign Out
             </button>
           </li>
@@ -41,7 +52,8 @@ const NavAccount = ({ menuRef, account, signOut, showDropdown, setShowDropdown }
 };
 
 const Nav = () => {
-  const { signIn, signOut, account } = useContext(Web3Context);
+  const { signIn, signOut, account, username, imageURL } =
+    useContext(Web3Context);
   const [showDropdown, setShowDropdown] = useState(false);
   let dropdownRef = useRef();
 
@@ -66,9 +78,6 @@ const Nav = () => {
             Project <span className="italic">SpeedBurn</span>
           </h1>
         </Link>
-        <Link href="/create-post" className="font-bold text-xl text-white">
-          Create post
-        </Link>
         <Link href="/marketplace" className="font-bold text-xl text-white">
           Marketplace
         </Link>
@@ -78,11 +87,16 @@ const Nav = () => {
           menuRef={dropdownRef}
           showDropdown={showDropdown}
           setShowDropdown={setShowDropdown}
-          account={account}
           signOut={signOut}
+          username={username}
+          imageURL={imageURL}
         />
       ) : (
-        <button className="action-button" type="button" onClick={() => signIn()}>
+        <button
+          className="action-button"
+          type="button"
+          onClick={() => signIn()}
+        >
           Sign In
         </button>
       )}

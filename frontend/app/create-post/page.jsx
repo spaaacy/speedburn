@@ -20,15 +20,15 @@ const CreatePost = () => {
         // isRegistered ? (
         true ? (
           <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-4 h-full w-full">
-            <input className="border rounded-md p-3 border-slate-400" placeholder="Title" type="text" onChange={(e) => setTitle(e.target.value)} />
+            {/* <input className="border rounded-md p-3 border-slate-400" placeholder="Title" type="text" onChange={(e) => setTitle(e.target.value)} /> */}
             <textarea
-              className="input-box h-full"
-              placeholder="Body"
+              className="input-box h-full p-3"
+              placeholder="What's on your mind?"
               type="text"
               onChange={(e) => setBody(e.target.value)}
             />
-            <button onSubmit={(e) => handleSubmit(e)} type="submit" className="button :w-[20%] self-end">
-              Submit
+            <button onSubmit={(e) => handleSubmit(e)} type="submit" className="action-button-dark w-[20%] self-end">
+              Post
             </button>
           </form>
         ) : (
