@@ -1,7 +1,7 @@
 "use client";
 
 import { Web3Context } from "@/context/Web3Context";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 
 const AccountItem = ({ id, submitPurchase }) => (
   <div className="bg-white shadow-xl rounded-xl p-4 flex-center flex-col">
@@ -14,25 +14,23 @@ const AccountItem = ({ id, submitPurchase }) => (
 
 
 const Marketplace = () => {
-  const { marketplace, accountNFT, retrieveListings, purchaseAccount } = useContext(Web3Context);
-
-  const [listedIds, setListedIds] = useState([]);
+  const { isContextInitialized, retrieveListings, purchaseAccount, listedAccounts } = useContext(Web3Context);
 
   const submitPurchase = async (id) => {
     await purchaseAccount(id);
-    setListedIds([]);
     window.location.reload();
   }
 
   
   useEffect(() => {
-    retrieveListings((i) => setListedIds((prevIds) => [...prevIds, i]));
-  }, [marketplace, accountNFT]);
-
+    if (!isContextInitialized) return;
+    retrieveListings();
+  }, [isContextInitialized]);
+  
   return (
     <main className="flex-center flex-col max-width">
       <div className="grid grid-cols-5 gap-4">
-        {listedIds && listedIds.map((id) => <AccountItem key={id} id={id} submitPurchase={submitPurchase} />)}
+        {listedAccounts && listedAccounts.map((id) => <AccountItem key={id} id={id} submitPurchase={submitPurchase} />)}
       </div>
     </main>
   );

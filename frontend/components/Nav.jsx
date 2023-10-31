@@ -1,7 +1,5 @@
 "use client";
 
-import formatAddress from "@/util/formatAddress";
-import Image from "next/image";
 import Link from "next/link";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Web3Context } from "@/context/Web3Context";
@@ -17,7 +15,6 @@ const NavAccount = ({
 }) => {
   return (
     <div className="relative flex justify-end items-center gap-3">
-      {console.log({ username, imageURL })}
       <p className="font-semibold italic text-white">{username}</p>
         <UserImage onClick={() => setShowDropdown(!showDropdown)} imageURL={imageURL} />
       <div

@@ -1,10 +1,10 @@
 "use client";
 
 import { Web3Context } from "@/context/Web3Context";
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 
 const CreatePost = () => {
-  const { createPost, isRegistered, account } = useContext(Web3Context);
+  const { createPost } = useContext(Web3Context);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 

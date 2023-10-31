@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import config from "@/public/config.json";
 import accountArtifact from "@/public/abi/Account.json";
 import marketplaceArtifact from "@/public/abi/Marketplace.json";
@@ -8,7 +8,7 @@ import blogArtifact from "@/public/abi/Blog.json";
 import profileArtifact from "@/public/abi/Profile.json";
 import { ethers } from "ethers";
 
-export const Web3Context = React.createContext();
+export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
   // Contract ABIs
@@ -18,56 +18,60 @@ export const Web3Provider = ({ children }) => {
   const { abi: profileAbi } = profileArtifact;
 
   // Misc
+  const [isContextInitialized, setIsContextInitialized] = useState(false);
   const [provider, setProvider] = useState(null);
   const [posts, setPosts] = useState([]);
   const [profileCache, setProfileCache] = useState({});
+  const [listedAccounts, setListedAccounts] = useState([]);
 
   // User
   const [account, setAccount] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
-  const [username, setUsername] = useState("");
-  const [imageURL, setImageURL] = useState("");
-  
+  const [username, setUsername] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
+
   // Contracts
-  const [marketplace, setMarketplace] = useState(null);
-  const [accountNFT, setAccountNFT] = useState(null);
-  const [blog, setBlog] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [marketplaceContract, setMarketplaceContract] = useState(null);
+  const [accountContract, setAccountContract] = useState(null);
+  const [blogContract, setBlogContract] = useState(null);
+  const [profileContract, setProfileContract] = useState(null);
 
   useEffect(() => {
+    let provider;
     if (window.ethereum == null) {
-      setProvider(new ethers.getDefaultProvider());
+      provider = new ethers.getDefaultProvider();
     } else {
-      setProvider(new ethers.BrowserProvider(window.ethereum));
+      provider = new ethers.BrowserProvider(window.ethereum);
     }
+    setProvider(provider);
 
     // Initialize contracts
     const accountNFT = new ethers.Contract(config.account.address, accountAbi, provider);
-    setAccountNFT(accountNFT);
+    setAccountContract(accountNFT);
     const marketplace = new ethers.Contract(config.marketplace.address, marketplaceAbi, provider);
-    setMarketplace(marketplace);
+    setMarketplaceContract(marketplace);
     const blog = new ethers.Contract(config.blog.address, blogAbi, provider);
-    setBlog(blog);
+    setBlogContract(blog);
     const profile = new ethers.Contract(config.profile.address, profileAbi, provider);
-    setProfile(profile);
+    setProfileContract(profile);
+    setIsContextInitialized(true);
   }, []);
 
   const purchaseAccount = async (id) => {
-    if (!accountNFT || !account) return;
+    if (!accountContract || !account) return;
     const signer = await provider.getSigner();
-    const transaction = await marketplace.connect(signer).purchase(id, { value: 2 });
+    const transaction = await marketplaceContract.connect(signer).purchase(id, { value: 2 });
     await transaction.wait();
   };
 
   const getPosts = async () => {
     const posts = [];
     const users = {};
-    const signer = await provider.getSigner();
-    const totalPosts = await blog.connect(signer).nextPostId();
+    const totalPosts = await blogContract.nextPostId();
     for (let i = 0; i < totalPosts; i++) {
-      const post = await blog.connect(signer).posts(i);
+      const post = await blogContract.posts(i);
       if (!users[post[3]]) {
-        const user = await profile.connect(signer).profiles(post[3]);
+        const user = await profileContract.profiles(post[3]);
         users[post[3]] = user;
       }
       posts.push(post);
@@ -80,27 +84,25 @@ export const Web3Provider = ({ children }) => {
     if (!isRegistered) return;
     const { body } = post;
     const signer = await provider.getSigner();
-    const transaction = await blog.connect(signer).mintPost("", body, Date.now());
+    const transaction = await blogContract.connect(signer).mintPost("", body, Date.now());
     await transaction.wait();
   };
 
   const createUser = async (user) => {
-    console.log({profile});
-    if (!profile || !isRegistered) return;
+    if (!profileContract || !isRegistered) return;
     const { username, imageURL } = user;
-    console.log({username, imageURL});
+    console.log({ username, imageURL });
     const signer = await provider.getSigner();
-    const transaction = await profile.connect(signer).createUser(username, imageURL);
+    const transaction = await profileContract.connect(signer).createUser(username, imageURL);
     await transaction.wait();
   };
 
   const signIn = async () => {
-    if (!accountNFT || !profile) return;
+    if (!accountContract || !profileContract) return;
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     setAccount(accounts[0]);
-    const signer = await provider.getSigner();
-    setIsRegistered(await accountNFT.connect(signer).balanceOf(accounts[0]));
-    const user = await profile.connect(signer).profiles(accounts[0]);
+    setIsRegistered(await accountContract.balanceOf(accounts[0]));
+    const user = await profileContract.profiles(accounts[0]);
     setUsername(user[0]);
     setImageURL(user[1]);
   };
@@ -112,13 +114,13 @@ export const Web3Provider = ({ children }) => {
     setImageURL("");
   };
 
-  const retrieveListings = async (updateListedItems) => {
-    if (!marketplace || !accountNFT) return;
-    const signer = await provider.getSigner();
-    const totalAccountNFTs = await accountNFT.connect(signer).nextTokenId();
+  const retrieveListings = async () => {
+    if (!marketplaceContract || !accountContract) return;
+    setListedAccounts([]);
+    const totalAccountNFTs = await accountContract.nextTokenId();
     for (let i = 0; i < totalAccountNFTs; i++) {
-      if (await marketplace.connect(signer).isListed(i)) {
-        updateListedItems(i);
+      if (await marketplaceContract.isListed(i)) {
+        setListedAccounts((prevAccounts) => [...prevAccounts, i]);
       }
     }
   };
@@ -126,15 +128,14 @@ export const Web3Provider = ({ children }) => {
   return (
     <Web3Context.Provider
       value={{
+        isContextInitialized,
         account,
-        marketplace,
-        accountNFT,
-        blog,
         posts,
         profileCache,
         isRegistered,
         username,
         imageURL,
+        listedAccounts,
         retrieveListings,
         purchaseAccount,
         signIn,

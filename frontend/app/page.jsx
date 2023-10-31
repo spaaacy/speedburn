@@ -6,17 +6,16 @@ import { useContext, useEffect } from "react";
 import CreatePost from "../components/CreatePost";
 
 const Home = () => {
-  const { blog, posts, getPosts, isRegistered, profileCache } = useContext(Web3Context);
+  const { isContextInitialized, posts, getPosts, isRegistered, profileCache } = useContext(Web3Context);
 
   useEffect(() => {
-    if (!blog) return;
+    if (!isContextInitialized) return;
     getPosts();
-  }, [blog]);
+  }, [isContextInitialized]);
 
   return (
     <main className="flex-center flex-col max-w-[680px] gap-4 m-auto">
       {isRegistered && <CreatePost />}
-      {console.log(profileCache)}
       {posts.map((post, i) => (
         <Post
           key={i}
