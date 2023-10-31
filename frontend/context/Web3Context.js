@@ -30,6 +30,7 @@ export const Web3Provider = ({ children }) => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [username, setUsername] = useState(null);
   const [displayPicture, setDisplayPicture] = useState(null);
+  const [tokenOwned, setTokenOwned] = useState(null);
 
   // Contracts
   const [marketplaceContract, setMarketplaceContract] = useState(null);
@@ -84,7 +85,6 @@ export const Web3Provider = ({ children }) => {
     const signer = await provider.getSigner();
     const tokenId = await speedburnContract.tokenOfOwnerByIndex(account, 0);
     try {
-
       // Approving transfer
       console.log("Approving transfer...");
       let transaction = await speedburnContract.connect(signer).approve(config.marketplace.address, tokenId);
@@ -99,7 +99,6 @@ export const Web3Provider = ({ children }) => {
 
       setIsRegistered(false);
       await retrieveListings();
-
     } catch (error) {
       console.error(error);
     }
@@ -140,12 +139,18 @@ export const Web3Provider = ({ children }) => {
 
   const signIn = async () => {
     if (!isContextInitialized) return;
+
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     setAccount(accounts[0]);
-    setIsRegistered(await speedburnContract.balanceOf(accounts[0]));
+    const isRegistered = await speedburnContract.balanceOf(accounts[0]);
+    setIsRegistered(isRegistered);
     const user = await profileContract.profiles(accounts[0]);
     setUsername(user[0]);
     setDisplayPicture(user[1]);
+
+    if (!isRegistered) return;
+    const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
+    setTokenOwned(tokenOwned);
   };
 
   const signOut = () => {
@@ -193,6 +198,7 @@ export const Web3Provider = ({ children }) => {
         username,
         displayPicture,
         listedAccounts,
+        tokenOwned,
         retrieveListings,
         purchaseNFT,
         signIn,
