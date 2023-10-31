@@ -5,9 +5,10 @@ const CreatePost = () => {
   const { createPost } = useContext(Web3Context);
   const [body, setBody] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    createPost({ body });
+    await createPost({ body });
+    window.location.reload();
   };
 
   return (

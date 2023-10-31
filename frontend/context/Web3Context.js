@@ -37,25 +37,35 @@ export const Web3Provider = ({ children }) => {
   const [profileContract, setProfileContract] = useState(null);
 
   useEffect(() => {
-    let provider;
-    if (window.ethereum == null) {
-      provider = new ethers.getDefaultProvider();
-    } else {
-      provider = new ethers.BrowserProvider(window.ethereum);
-    }
-    setProvider(provider);
+    const initializeContext = async () => {
+      let provider;
+      if (window.ethereum == null) {
+        provider = new ethers.getDefaultProvider();
+      } else {
+        provider = new ethers.BrowserProvider(window.ethereum);
+      }
+      setProvider(provider);
 
-    // Initialize contracts
-    const accountNFT = new ethers.Contract(config.account.address, accountAbi, provider);
-    setAccountContract(accountNFT);
-    const marketplace = new ethers.Contract(config.marketplace.address, marketplaceAbi, provider);
-    setMarketplaceContract(marketplace);
-    const blog = new ethers.Contract(config.blog.address, blogAbi, provider);
-    setBlogContract(blog);
-    const profile = new ethers.Contract(config.profile.address, profileAbi, provider);
-    setProfileContract(profile);
-    setIsContextInitialized(true);
-  }, []);
+      // Initialize contracts
+      const accountNFT = new ethers.Contract(config.account.address, accountAbi, provider);
+      setAccountContract(accountNFT);
+      const marketplace = new ethers.Contract(config.marketplace.address, marketplaceAbi, provider);
+      setMarketplaceContract(marketplace);
+      const blog = new ethers.Contract(config.blog.address, blogAbi, provider);
+      setBlogContract(blog);
+      const profile = new ethers.Contract(config.profile.address, profileAbi, provider);
+      setProfileContract(profile);
+
+      setIsContextInitialized(true);
+    };
+
+    if (isContextInitialized) {
+      signIn();
+    } else {
+      initializeContext();
+    }
+
+  }, [isContextInitialized]);
 
   const purchaseAccount = async (id) => {
     if (!accountContract || !account) return;
@@ -98,7 +108,7 @@ export const Web3Provider = ({ children }) => {
   };
 
   const signIn = async () => {
-    if (!accountContract || !profileContract) return;
+    if (!isContextInitialized) return;
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     setAccount(accounts[0]);
     setIsRegistered(await accountContract.balanceOf(accounts[0]));
