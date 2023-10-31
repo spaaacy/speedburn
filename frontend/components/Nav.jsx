@@ -15,7 +15,7 @@ const NavAccount = ({
 }) => {
   return (
     <div className="relative flex justify-end items-center gap-3">
-      <p className="font-semibold italic text-white">{username}</p>
+      <p className="font-semibold text-black">{username}</p>
         <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={displayPicture} />
       <div
         ref={menuRef}
@@ -68,14 +68,14 @@ const Nav = () => {
   });
 
   return (
-    <nav className="bg-jet sticky top-0 flex-center padding max-width">
+    <nav className="sticky top-0 flex-center padding max-width">
       <div className="flex flex-1 justify-start items-center gap-6">
         <Link href="/">
-          <h1 className="font-bold text-3xl mr-4 text-white">
+          <h1 className="font-bold text-3xl mr-4 text-black">
             Project <span className="italic">SpeedBurn</span>
           </h1>
         </Link>
-        <Link href="/marketplace" className="font-bold text-xl text-white">
+        <Link href="/marketplace" className="font-bold text-xl text-black">
           Marketplace
         </Link>
       </div>
