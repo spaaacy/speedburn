@@ -1,16 +1,23 @@
 "use client";
 
 import { Web3Context } from "@/context/Web3Context";
+import { Log } from "ethers";
 import { useContext, useState } from "react";
 
 const Account = () => {
   const [usernameField, setUsernameField] = useState("");
   const [imageURLField, setImageURLField] = useState("");
-  const { createUser, username } = useContext(Web3Context);
+  const { createUser, username, changeDisplayPicture, changeUsername } = useContext(Web3Context);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createUser({ username: usernameField, imageURL: imageURLField });
+    if (imageURLField.length > 0) {
+      changeDisplayPicture(imageURLField);
+    }
+    if (usernameField.length > 0) {
+      changeUsername(usernameField)
+    }
+    // createUser({ username: usernameField, imageURL: imageURLField });
   };
 
   return (

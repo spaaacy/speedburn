@@ -1,9 +1,9 @@
 import Image from "next/image";
 
-const UserImage = ({imageURL, onClick}) => {
+const UserImage = ({displayPicture, onClick}) => {
   return (
     <Image
-      src={imageURL ?? "assets/icons/account.svg"}
+      src={displayPicture ?? "assets/icons/account.svg"}
       onClick={onClick}
       className="hover:cursor-pointer object-cover rounded-full w-[45px] h-[45px]"
       alt="user_image"

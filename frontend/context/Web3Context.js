@@ -28,7 +28,7 @@ export const Web3Provider = ({ children }) => {
   const [account, setAccount] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [username, setUsername] = useState(null);
-  const [imageURL, setImageURL] = useState(null);
+  const [displayPicture, setDisplayPicture] = useState(null);
 
   // Contracts
   const [marketplaceContract, setMarketplaceContract] = useState(null);
@@ -64,7 +64,6 @@ export const Web3Provider = ({ children }) => {
     } else {
       initializeContext();
     }
-
   }, [isContextInitialized]);
 
   const purchaseAccount = async (id) => {
@@ -113,15 +112,16 @@ export const Web3Provider = ({ children }) => {
     setAccount(accounts[0]);
     setIsRegistered(await accountContract.balanceOf(accounts[0]));
     const user = await profileContract.profiles(accounts[0]);
+    console.log(user);
     setUsername(user[0]);
-    setImageURL(user[1]);
+    setDisplayPicture(user[1]);
   };
 
   const signOut = () => {
     setAccount(null);
     setIsRegistered(false);
     setUsername("");
-    setImageURL("");
+    setDisplayPicture("");
   };
 
   const retrieveListings = async () => {
@@ -135,6 +135,28 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
+  const changeDisplayPicture = async (imageURL) => {
+    if (!isContextInitialized) return;
+    const signer = await provider.getSigner();
+    const transaction = await profileContract.connect(signer).setDisplayPicture(imageURL);
+    await transaction.wait();
+    setDisplayPicture(imageURL);
+  };
+
+  const changeUsername = async (username) => {
+    if (!isContextInitialized) return;
+    const signer = await provider.getSigner();
+    const transaction = await profileContract.connect(signer).setUsername(username);
+    await transaction.wait();
+    setUsername(username);
+  };
+
+  const listAccount = async () => {
+    const tokenId = await accountContract.balanceOf(account);
+    console.log(tokenId);
+    // let transaction = await accountContract.connect(signer).approve(config.marketplace.address, )
+  }
+
   return (
     <Web3Context.Provider
       value={{
@@ -144,7 +166,7 @@ export const Web3Provider = ({ children }) => {
         profileCache,
         isRegistered,
         username,
-        imageURL,
+        displayPicture,
         listedAccounts,
         retrieveListings,
         purchaseAccount,
@@ -153,6 +175,9 @@ export const Web3Provider = ({ children }) => {
         createPost,
         getPosts,
         createUser,
+        changeDisplayPicture,
+        changeUsername,
+        listAccount
       }}
     >
       {children}

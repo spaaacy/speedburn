@@ -2,8 +2,14 @@
 const nextConfig = {
   // Prevent calling useEffect twice
   reactStrictMode: false,
+  // Allow all domains for development
   images: {
-    domains: ["preview.redd.it", "is5-ssl.mzstatic.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
   },
 };
 

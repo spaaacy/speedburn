@@ -11,12 +11,12 @@ const NavAccount = ({
   showDropdown,
   setShowDropdown,
   username,
-  imageURL,
+  displayPicture,
 }) => {
   return (
     <div className="relative flex justify-end items-center gap-3">
       <p className="font-semibold italic text-white">{username}</p>
-        <UserImage onClick={() => setShowDropdown(!showDropdown)} imageURL={imageURL} />
+        <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={displayPicture} />
       <div
         ref={menuRef}
         className={`absolute top-14 bg-white shadow-xl rounded-xl p-4 ${
@@ -49,7 +49,7 @@ const NavAccount = ({
 };
 
 const Nav = () => {
-  const { signIn, signOut, account, username, imageURL } =
+  const { signIn, signOut, account, username, displayPicture } =
     useContext(Web3Context);
   const [showDropdown, setShowDropdown] = useState(false);
   let dropdownRef = useRef();
@@ -86,7 +86,7 @@ const Nav = () => {
           setShowDropdown={setShowDropdown}
           signOut={signOut}
           username={username}
-          imageURL={imageURL}
+          displayPicture={displayPicture}
         />
       ) : (
         <button

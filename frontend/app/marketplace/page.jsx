@@ -12,9 +12,12 @@ const AccountItem = ({ id, submitPurchase }) => (
   </div>
 );
 
+const handleSell = async () => {
+
+}
 
 const Marketplace = () => {
-  const { isContextInitialized, retrieveListings, purchaseAccount, listedAccounts } = useContext(Web3Context);
+  const { isContextInitialized, retrieveListings, purchaseAccount, listedAccounts, listAccount } = useContext(Web3Context);
 
   const submitPurchase = async (id) => {
     await purchaseAccount(id);
@@ -32,6 +35,9 @@ const Marketplace = () => {
       <div className="grid grid-cols-5 gap-4">
         {listedAccounts && listedAccounts.map((id) => <AccountItem key={id} id={id} submitPurchase={submitPurchase} />)}
       </div>
+      <button type="button" className="action-button self-end" onClick={listAccount}>
+        Sell account
+      </button>
     </main>
   );
 };
