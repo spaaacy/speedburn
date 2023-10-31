@@ -12,32 +12,24 @@ const AccountItem = ({ id, submitPurchase }) => (
   </div>
 );
 
-const handleSell = async () => {
-
-}
-
 const Marketplace = () => {
-  const { isContextInitialized, retrieveListings, purchaseAccount, listedAccounts, listAccount } = useContext(Web3Context);
+  const { isContextInitialized, retrieveListings, purchaseNFT, listedAccounts, listAccount, isRegistered } = useContext(Web3Context);
 
-  const submitPurchase = async (id) => {
-    await purchaseAccount(id);
-    window.location.reload();
-  }
-
-  
   useEffect(() => {
     if (!isContextInitialized) return;
     retrieveListings();
   }, [isContextInitialized]);
-  
+
   return (
     <main className="flex-center flex-col max-width">
       <div className="grid grid-cols-5 gap-4">
-        {listedAccounts && listedAccounts.map((id) => <AccountItem key={id} id={id} submitPurchase={submitPurchase} />)}
+        {listedAccounts && listedAccounts.map((id) => <AccountItem key={id} id={id} submitPurchase={purchaseNFT} />)}
       </div>
-      <button type="button" className="action-button self-end" onClick={listAccount}>
-        Sell account
-      </button>
+      {isRegistered && (
+        <button type="button" className="action-button self-end" onClick={listAccount}>
+          Sell account
+        </button>
+      )}
     </main>
   );
 };

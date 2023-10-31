@@ -53,7 +53,7 @@ async function main() {
 
   // Purchase NFT
   console.log("Account #0: Purchasing Speedburn NFT");
-  let transaction = await marketplace.connect(owner).purchase(0, { value: nftPrice });
+  let transaction = await marketplace.connect(owner).purchase(3, { value: nftPrice });
   await transaction.wait();
   console.log("Account #0: Speedburn purchased!");
 

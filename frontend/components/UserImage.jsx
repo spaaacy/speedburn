@@ -3,7 +3,7 @@ import Image from "next/image";
 const UserImage = ({displayPicture, onClick}) => {
   return (
     <Image
-      src={displayPicture ?? "assets/icons/account.svg"}
+      src={displayPicture ? displayPicture : "assets/icons/account.svg"}
       onClick={onClick}
       className="hover:cursor-pointer object-cover rounded-full w-[45px] h-[45px]"
       alt="user_image"
