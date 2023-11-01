@@ -16,14 +16,14 @@ const CreatePost = () => {
         authorAddress: account,
       }),
     });
-    // window.location.reload();
+    window.location.reload();
   };
 
   return (
-    <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col gap-4 h-full w-full bg-white p-4 rounded-xl">
-      <input placeholder="Title" type="text" onChange={(e) => setTitle(e.target.value)} />
+    <form onSubmit={(e) => handleSubmit(e)} className="w-[720px] flex flex-col gap-4 h-[250px] p-4 rounded-xl glass-morphism">
+      <input placeholder="Title" className="rounded-lg p-3" type="text" onChange={(e) => setTitle(e.target.value)} />
       <textarea
-        className="input-box h-full p-3"
+        className="p-3 rounded-lg flex-auto"
         placeholder="Body"
         type="text"
         onChange={(e) => setBody(e.target.value)}

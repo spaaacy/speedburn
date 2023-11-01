@@ -7,7 +7,7 @@ const Post = ({ post }) => {
   const { body, timestamp, username, image } = post;
   return (
     <div className="w-full bg-white flex flex-col items-start justify-center rounded-md shadow-xl px-6 py-4 gap-4 mb-4">
-      <div className="flex-center w-full gap-3">
+      <div className="flex justify-center items-center w-full gap-3">
         <UserImage displayPicture={image} />
         <p className="font-semibold">{username}</p>
         <p className="font-light justify-self-center ml-auto">{formatDate(timestamp)}</p>

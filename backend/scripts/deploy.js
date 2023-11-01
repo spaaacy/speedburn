@@ -18,17 +18,17 @@ async function main() {
   const marketplace = await Marketplace.deploy(await speedburn.getAddress(), nftPrice);
   console.log(`Marketplace contract deployed at address: ${await marketplace.getAddress()}`);
 
-  // Deploy blog contract
-  console.log("Deploying Blog NFT");
-  const Blog = await hre.ethers.getContractFactory("Blog");
-  const blog = await Blog.deploy(await speedburn.getAddress());
-  console.log(`Blog NFT deployed at address: ${await blog.getAddress()}`);
+  // // Deploy blog contract
+  // console.log("Deploying Blog NFT");
+  // const Blog = await hre.ethers.getContractFactory("Blog");
+  // const blog = await Blog.deploy(await speedburn.getAddress());
+  // console.log(`Blog NFT deployed at address: ${await blog.getAddress()}`);
 
-  // Deploy profile contract
-  console.log("Deploying Profile Contract");
-  const Profile = await hre.ethers.getContractFactory("Profile");
-  const profile = await Profile.deploy(await speedburn.getAddress());
-  console.log(`Profile contract deployed at address: ${await profile.getAddress()}`);
+  // // Deploy profile contract
+  // console.log("Deploying Profile Contract");
+  // const Profile = await hre.ethers.getContractFactory("Profile");
+  // const profile = await Profile.deploy(await speedburn.getAddress());
+  // console.log(`Profile contract deployed at address: ${await profile.getAddress()}`);
 
   // Mint Speedburn NFTs
   for (let i = 0; i < nftCount; i++) {
@@ -57,11 +57,11 @@ async function main() {
   await transaction.wait();
   console.log("Account #0: Speedburn purchased!");
 
-  // Create profile
-  console.log("Account #0: Creating user profile");
-  transaction = await profile.connect(owner).createUser("spacy", "https://is5-ssl.mzstatic.com/image/thumb/Purple128/v4/cf/43/85/cf438590-1e50-4ee2-c0a8-96fa85501abb/source/512x512bb.jpg");
-  transaction.wait();
-  console.log("Account #0: User profile created!");
+  // // Create profile
+  // console.log("Account #0: Creating user profile");
+  // transaction = await profile.connect(owner).createUser("spacy", "https://is5-ssl.mzstatic.com/image/thumb/Purple128/v4/cf/43/85/cf438590-1e50-4ee2-c0a8-96fa85501abb/source/512x512bb.jpg");
+  // transaction.wait();
+  // console.log("Account #0: User profile created!");
 }
 
 main().catch((error) => {

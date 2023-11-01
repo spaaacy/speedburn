@@ -2,14 +2,17 @@ import Image from "next/image";
 
 const Hero = () => {
   return (
-    <div className="">
-      <div className="relative w-full h-[640px]">
-        <Image src={"/assets/images/hero_bg.jpg"} className="-z-10" layout="fill" />
+    <div className="w-full h-[640px] bg-black">
+      <div className="-z-10 opacity-50">
+        <Image src={"/assets/images/hero_bg.jpg"} layout="fill" />
       </div>
-      <div>
-
+      <div className="flex relative justify-end items-center h-full mr-10">
+        <h1 className="text-white text-8xl text-right">
+          Welcome to
+          <br />
+          SpeedBurn
+        </h1>
       </div>
-      <h1 className="text-white text-3xl">Welcome to SpeedBurn</h1>
     </div>
   );
 };

@@ -8,7 +8,7 @@ import Hero from "@/components/Hero";
 import Image from "next/image";
 
 const Home = () => {
-  const { isContextInitialized, posts, getPosts, isRegistered, profileCache } = useContext(Web3Context);
+  const { isContextInitialized, posts, getPosts, account, isRegistered, profileCache } = useContext(Web3Context);
 
   useEffect(() => {
     if (!isContextInitialized) return;
@@ -16,20 +16,13 @@ const Home = () => {
   }, [isContextInitialized]);
 
   return (
-    <main className="flex-center flex-col gap-4 m-auto">
-      {/* <div className="relative w-full h-[640px]">
-        <div className="-z-10">
-          <Image src={"/assets/images/hero_bg.jpg"} layout="fill" />
-        </div>
-        <div className="flex relative justify-center items-center h-full">
-          <h1 className="text-white text-3xl">Welcome to SpeedBurn</h1>
-        </div>
-      </div> */}
+    <main className="relative flex justify-center items-center flex-col gap-4">
+      
       
       {!isRegistered && <Hero />}
 
       {isRegistered && (
-        <div className="max-width flex flex-col justify-start items-start">
+        <div className="max-width flex flex-col justify-start items-center">
           <CreatePost />
           {posts.map((post, i) => (
             <Post

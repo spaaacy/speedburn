@@ -35,8 +35,8 @@ export const Web3Provider = ({ children }) => {
   // Contracts
   const [marketplaceContract, setMarketplaceContract] = useState(null);
   const [speedburnContract, setSpeedBurnContract] = useState(null);
-  const [blogContract, setBlogContract] = useState(null);
-  const [profileContract, setProfileContract] = useState(null);
+  // const [blogContract, setBlogContract] = useState(null);
+  // const [profileContract, setProfileContract] = useState(null);
 
   useEffect(() => {
     const initializeContext = async () => {
@@ -53,11 +53,18 @@ export const Web3Provider = ({ children }) => {
       setSpeedBurnContract(speedburnContract);
       const marketplaceContract = new ethers.Contract(config.marketplace.address, marketplaceAbi, provider);
       setMarketplaceContract(marketplaceContract);
-      const blogContract = new ethers.Contract(config.blog.address, blogAbi, provider);
-      setBlogContract(blogContract);
-      const profileContract = new ethers.Contract(config.profile.address, profileAbi, provider);
-      setProfileContract(profileContract);
-
+      // const blogContract = new ethers.Contract(config.blog.address, blogAbi, provider);
+      // setBlogContract(blogContract);
+      // const profileContract = new ethers.Contract(config.profile.address, profileAbi, provider);
+      // setProfileContract(profileContract);
+      
+      // Account change listener
+      window.ethereum.on("accountsChanged", async () => {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setAccount(accounts[0]);
+        window.location.reload();
+      });
+      
       setIsContextInitialized(true);
     };
 
@@ -105,28 +112,19 @@ export const Web3Provider = ({ children }) => {
   };
 
   const getPosts = async () => {
-    const posts = [];
-    const users = {};
-    const totalPosts = await blogContract.nextPostId();
-    for (let i = 0; i < totalPosts; i++) {
-      const post = await blogContract.posts(i);
-      if (!users[post[3]]) {
-        const user = await profileContract.profiles(post[3]);
-        users[post[3]] = user;
-      }
-      posts.push(post);
-    }
-    setPosts(posts);
-    setProfileCache(users);
-  };
-
-  const createUser = async (user) => {
-    if (!profileContract || !isRegistered) return;
-    const { username, imageURL } = user;
-    console.log({ username, imageURL });
-    const signer = await provider.getSigner();
-    const transaction = await profileContract.connect(signer).createUser(username, imageURL);
-    await transaction.wait();
+    // const posts = [];
+    // const users = {};
+    // const totalPosts = await blogContract.nextPostId();
+    // for (let i = 0; i < totalPosts; i++) {
+    //   const post = await blogContract.posts(i);
+    //   if (!users[post[3]]) {
+    //     const user = await profileContract.profiles(post[3]);
+    //     users[post[3]] = user;
+    //   }
+    //   posts.push(post);
+    // }
+    // setPosts(posts);
+    // setProfileCache(users);
   };
 
   const signIn = async () => {
@@ -136,9 +134,8 @@ export const Web3Provider = ({ children }) => {
     setAccount(accounts[0]);
     const isRegistered = await speedburnContract.balanceOf(accounts[0]);
     setIsRegistered(isRegistered);
-    const user = await profileContract.profiles(accounts[0]);
-    setUsername(user[0]);
-    setDisplayPicture(user[1]);
+
+    // TODO: Fetch user from MongoDB
 
     if (!isRegistered) return;
     const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
@@ -163,22 +160,6 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
-  const changeDisplayPicture = async (imageURL) => {
-    if (!isContextInitialized) return;
-    const signer = await provider.getSigner();
-    const transaction = await profileContract.connect(signer).setDisplayPicture(imageURL);
-    await transaction.wait();
-    setDisplayPicture(imageURL);
-  };
-
-  const changeUsername = async (username) => {
-    if (!isContextInitialized) return;
-    const signer = await provider.getSigner();
-    const transaction = await profileContract.connect(signer).setUsername(username);
-    await transaction.wait();
-    setUsername(username);
-  };
-
   return (
     <Web3Context.Provider
       value={{
@@ -196,9 +177,6 @@ export const Web3Provider = ({ children }) => {
         signIn,
         signOut,
         getPosts,
-        createUser,
-        changeDisplayPicture,
-        changeUsername,
         listAccount,
       }}
     >

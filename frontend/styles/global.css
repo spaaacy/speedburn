@@ -9,24 +9,18 @@
   }
 
   .action-button {
-    @apply font-semibold rounded-full text-jet bg-pale border-[1.5px] border-jet px-4 py-2
+    @apply font-semibold rounded-full text-jet bg-pale border-[1.5px] border-jet px-4 py-2 disabled:text-gray-400 disabled:border-gray-400;
   }
-  
+
   .action-button-dark {
-    @apply font-semibold rounded-full text-pale bg-jet px-4 py-2
-  }
-}
-
-@layer utilities {
-  .filter-white {
-    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(163deg) brightness(104%) contrast(105%);
-  }
-  
-  .flex-center {
-    @apply flex justify-center items-center
+    @apply font-semibold rounded-full text-pale bg-jet px-4 py-2;
   }
 
-  .padding {
-    @apply px-8 py-6
+  .glass-morphism {
+    background: rgba(0, 0, 0, 0.13);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5.2px);
+    -webkit-backdrop-filter: blur(5.2px);
   }
 }
