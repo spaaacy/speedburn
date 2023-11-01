@@ -17,18 +17,19 @@ const Home = () => {
 
   return (
     <main className="flex-center flex-col gap-4 m-auto">
-      <div className="relative w-full h-[640px]">
+      {/* <div className="relative w-full h-[640px]">
         <div className="-z-10">
           <Image src={"/assets/images/hero_bg.jpg"} layout="fill" />
         </div>
         <div className="flex relative justify-center items-center h-full">
           <h1 className="text-white text-3xl">Welcome to SpeedBurn</h1>
         </div>
-      </div>
-      {/* {!isRegistered && <Hero />} */}
+      </div> */}
+      
+      {!isRegistered && <Hero />}
 
-      {/* {isRegistered && (
-        <div className="max-width">
+      {isRegistered && (
+        <div className="max-width flex flex-col justify-start items-start">
           <CreatePost />
           {posts.map((post, i) => (
             <Post
@@ -43,7 +44,7 @@ const Home = () => {
             />
           ))}
         </div>
-      )} */}
+      )}
     </main>
   );
 };

@@ -120,14 +120,6 @@ export const Web3Provider = ({ children }) => {
     setProfileCache(users);
   };
 
-  const createPost = async (post) => {
-    if (!isRegistered) return;
-    const { body } = post;
-    const signer = await provider.getSigner();
-    const transaction = await blogContract.connect(signer).createPost("", body, Date.now());
-    await transaction.wait();
-  };
-
   const createUser = async (user) => {
     if (!profileContract || !isRegistered) return;
     const { username, imageURL } = user;
@@ -203,7 +195,6 @@ export const Web3Provider = ({ children }) => {
         purchaseNFT,
         signIn,
         signOut,
-        createPost,
         getPosts,
         createUser,
         changeDisplayPicture,

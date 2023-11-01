@@ -6,18 +6,20 @@ import { useContext, useState } from "react";
 
 const Account = () => {
   const [usernameField, setUsernameField] = useState("");
-  const [imageURLField, setImageURLField] = useState("");
-  const { createUser, username, changeDisplayPicture, changeUsername, tokenOwned } = useContext(Web3Context);
+  const [imageField, setImageField] = useState("");
+  const { account, username, tokenOwned } = useContext(Web3Context);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (imageURLField.length > 0) {
-      changeDisplayPicture(imageURLField);
-    }
-    if (usernameField.length > 0) {
-      changeUsername(usernameField)
-    }
-    // createUser({ username: usernameField, imageURL: imageURLField });
+    const res = await fetch("/api/users/create", {
+      method: "POST",
+      body: JSON.stringify({
+        address: account,
+        username: usernameField,
+        image: imageField
+      })
+    })
+    if (res.ok) console.log("User created");
   };
 
   return (
@@ -42,7 +44,7 @@ const Account = () => {
             <input
               placeholder="URL"
               className="border rounded-lg p-2 border-slate-400"
-              onChange={(e) => setImageURLField(e.target.value)}
+              onChange={(e) => setImageField(e.target.value)}
             />
           </div>
         </div>
