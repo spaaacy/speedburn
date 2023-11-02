@@ -1,6 +1,4 @@
-import formatAddress from "@/util/formatAddress";
-import formatDate from "@/util/formatDate";
-import Image from "next/image";
+import { formatDate } from "@/util/helpers";
 import UserImage from "./UserImage";
 
 const Post = ({ post }) => {

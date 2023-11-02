@@ -4,8 +4,6 @@ import { createContext, useEffect, useState } from "react";
 import config from "@/public/config.json";
 import speedburnArtifact from "@/public/abi/SpeedBurn.json";
 import marketplaceArtifact from "@/public/abi/Marketplace.json";
-import blogArtifact from "@/public/abi/Blog.json";
-import profileArtifact from "@/public/abi/Profile.json";
 import { ethers } from "ethers";
 
 export const Web3Context = createContext();
@@ -14,15 +12,11 @@ export const Web3Provider = ({ children }) => {
   // Contract ABIs
   const { abi: speedburnAbi } = speedburnArtifact;
   const { abi: marketplaceAbi } = marketplaceArtifact;
-  const { abi: blogAbi } = blogArtifact;
-  const { abi: profileAbi } = profileArtifact;
 
   // Misc
   const nftPrice = ethers.parseEther("5");
   const [isContextInitialized, setIsContextInitialized] = useState(false);
   const [provider, setProvider] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [profileCache, setProfileCache] = useState({});
   const [listedAccounts, setListedAccounts] = useState([]);
 
   // User
@@ -57,14 +51,14 @@ export const Web3Provider = ({ children }) => {
       // setBlogContract(blogContract);
       // const profileContract = new ethers.Contract(config.profile.address, profileAbi, provider);
       // setProfileContract(profileContract);
-      
+
       // Account change listener
       window.ethereum.on("accountsChanged", async () => {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         setAccount(accounts[0]);
         window.location.reload();
       });
-      
+
       setIsContextInitialized(true);
     };
 
@@ -88,7 +82,7 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
-  const listAccount = async () => {
+  const listNFT = async () => {
     const signer = await provider.getSigner();
     const tokenId = await speedburnContract.tokenOfOwnerByIndex(account, 0);
     try {
@@ -135,7 +129,15 @@ export const Web3Provider = ({ children }) => {
     const isRegistered = await speedburnContract.balanceOf(accounts[0]);
     setIsRegistered(isRegistered);
 
-    // TODO: Fetch user from MongoDB
+    // Fetch user from MongoDB
+    const response = await fetch(`/api/users/${accounts[0]}`, {
+      method: "GET",
+    });
+    const result = await response.json();
+    if (result) {
+      setUsername(result.username);
+      setDisplayPicture(result.image);
+    }
 
     if (!isRegistered) return;
     const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
@@ -165,8 +167,6 @@ export const Web3Provider = ({ children }) => {
       value={{
         isContextInitialized,
         account,
-        posts,
-        profileCache,
         isRegistered,
         username,
         displayPicture,
@@ -176,8 +176,7 @@ export const Web3Provider = ({ children }) => {
         purchaseNFT,
         signIn,
         signOut,
-        getPosts,
-        listAccount,
+        listNFT,
       }}
     >
       {children}

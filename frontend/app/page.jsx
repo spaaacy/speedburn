@@ -2,23 +2,28 @@
 
 import Post from "@/components/Post";
 import { Web3Context } from "@/context/Web3Context";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import CreatePost from "../components/CreatePost";
 import Hero from "@/components/Hero";
-import Image from "next/image";
 
 const Home = () => {
-  const { isContextInitialized, posts, getPosts, account, isRegistered, profileCache } = useContext(Web3Context);
+  const { isContextInitialized, isRegistered } = useContext(Web3Context);
+
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    if (!isContextInitialized) return;
-    getPosts();
-  }, [isContextInitialized]);
+    const fetchPosts = async () => {
+      const response = await fetch("/api/posts", { method: "GET" });
+      const results = await response.json();
+      setPosts(results);
+    };
+
+    if (!isContextInitialized || !isRegistered) return;
+    fetchPosts();
+  }, [isContextInitialized, isRegistered]);
 
   return (
     <main className="relative flex justify-center items-center flex-col gap-4">
-      
-      
       {!isRegistered && <Hero />}
 
       {isRegistered && (
@@ -28,11 +33,11 @@ const Home = () => {
             <Post
               key={i}
               post={{
-                title: post[0],
-                body: post[1],
-                timestamp: post[2],
-                username: profileCache[post[3]][0],
-                image: profileCache[post[3]][1],
+                title: post.title,
+                body: post.body,
+                timestamp: post.createdAt,
+                username: post.author.username,
+                image: post.author.image,
               }}
             />
           ))}

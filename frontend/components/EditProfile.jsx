@@ -1,22 +1,24 @@
 import React from "react";
 
-const EditProfile = ({confirmMessage}) => {
+const EditProfile = ({ headerMessage, confirmMessage, handleSubmit, setUsernameField, setImageField }) => {
   return (
     <form
       onSubmit={(e) => handleSubmit(e)}
-      className="self-center flex justify-center items-start flex-col mt-6 w-[760px]"
+      className="flex justify-center items-start flex-col w-[760px]"
     >
+      {/* TODO: Add form validation */}
       <div className="flex justify-center items-start flex-col font-semibold gap-4">
-        <div>
-          <label className="text-pale w-28 inline-block">Username:</label>
+        <h2 className="text-3xl font-bold">{headerMessage}</h2>
+        <div className="mt-4">
+          <label className=" w-28 inline-block">Username:</label>
           <input
-            placeholder={`${username ? username : "Username"}`}
+            placeholder={`${"Username"}`}
             className="border rounded-lg p-2 border-slate-400"
             onChange={(e) => setUsernameField(e.target.value)}
           />
         </div>
         <div>
-          <label className="text-pale w-28 inline-block">Image URL:</label>
+          <label className=" w-28 inline-block">Image:</label>
           <input
             placeholder="URL"
             className="border rounded-lg p-2 border-slate-400"
@@ -24,7 +26,7 @@ const EditProfile = ({confirmMessage}) => {
           />
         </div>
       </div>
-      <button className="action-button self-end" type="submit">
+      <button className="action-button-dark self-end" type="submit">
         {confirmMessage}
       </button>
     </form>

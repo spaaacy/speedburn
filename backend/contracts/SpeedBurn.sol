@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
 
 contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
     uint256 private _nextTokenId;
+    address private _marketplace;
 
     constructor(
         address initialOwner
@@ -17,6 +18,12 @@ contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
         Ownable(initialOwner)
         EIP712("SpeedBurn", "1")
     {}
+
+    function setMarketplaceAddress(
+        address _marketplaceAddress
+    ) public onlyOwner {
+        _marketplace = _marketplaceAddress;
+    }
 
     function safeMint(address to) public onlyOwner {
         uint256 tokenId = _nextTokenId++;
@@ -32,9 +39,9 @@ contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        // Receiver must not own account NFT or sender must be contract owner
+        // Receiver must not own account NFT || sender must be contract owner || receiver must be marketplace
         require(
-            balanceOf(to) <= 0 || from == owner(),
+            balanceOf(to) <= 0 || from == owner() || to == _marketplace,
             "Address already owns account NFT"
         );
         address previousOwner = _update(to, tokenId, _msgSender());

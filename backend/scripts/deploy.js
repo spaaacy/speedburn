@@ -1,34 +1,58 @@
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 async function main() {
   // Get account
-  const [owner] = await hre.ethers.getSigners();
-  const nftCount = 5;
-  const nftPrice = hre.ethers.parseEther("5");
+  let transaction;
+  const [owner] = await ethers.getSigners();
+  const nftCount = 50;
+  const nftPrice = ethers.parseEther("5");
+  const minDelay = BigInt(1);
+  const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
+  const PROPOSER_ROLE = ethers.id("PROPOSER_ROLE");
 
   // Deploy Speedburn nft contract
   console.log("Deploying Speedburn NFT");
-  const Speedburn = await hre.ethers.getContractFactory("SpeedBurn");
+  const Speedburn = await ethers.getContractFactory("SpeedBurn");
   const speedburn = await Speedburn.deploy(owner.address);
   console.log(`Speedburn NFT has been deployed at address: ${await speedburn.getAddress()}`);
 
   // Deploy marketplace contract
   console.log("Deploying Marketplace Contract");
-  const Marketplace = await hre.ethers.getContractFactory("Marketplace");
+  const Marketplace = await ethers.getContractFactory("Marketplace");
   const marketplace = await Marketplace.deploy(await speedburn.getAddress(), nftPrice);
   console.log(`Marketplace contract deployed at address: ${await marketplace.getAddress()}`);
+  // Set marketplace address in NFT contract
+  transaction = await speedburn.setMarketplaceAddress(await marketplace.getAddress());
+  await transaction.wait();
 
-  // // Deploy blog contract
-  // console.log("Deploying Blog NFT");
-  // const Blog = await hre.ethers.getContractFactory("Blog");
-  // const blog = await Blog.deploy(await speedburn.getAddress());
-  // console.log(`Blog NFT deployed at address: ${await blog.getAddress()}`);
+  // Deploy timelock contract
+  console.log("Deploying Timelock Contract");
+  const Timelock = await ethers.getContractFactory("Timelock");
+  const timelock = await Timelock.deploy(minDelay, [owner.address], [ethers.ZeroAddress], owner.address);
+  console.log(`Timelock contract deployed at address: ${await timelock.getAddress()}`);
 
-  // // Deploy profile contract
-  // console.log("Deploying Profile Contract");
-  // const Profile = await hre.ethers.getContractFactory("Profile");
-  // const profile = await Profile.deploy(await speedburn.getAddress());
-  // console.log(`Profile contract deployed at address: ${await profile.getAddress()}`);
+  // Deploy Colosseum contract
+  console.log("Deploying Colosseum Contract");
+  const Colosseum = await ethers.getContractFactory("Colosseum");
+  const colosseum = await Colosseum.deploy(await speedburn.getAddress(), await timelock.getAddress());
+  console.log(`Colosseum contract deployed at address: ${await colosseum.getAddress()}`);
+
+  // Grant governance contract proposer role and revoke owner address as admin
+  console.log("Granting Colosseum proposer role in timelock contract...");
+  transaction = await timelock.grantRole(PROPOSER_ROLE, await colosseum.getAddress());
+  await transaction.wait();
+  console.log("Role granted!");
+  console.log("Revoking deploying address as timelock contract proposer...");
+  transaction = await timelock.revokeRole(PROPOSER_ROLE, owner.address);
+  await transaction.wait();
+  console.log("Role revoked!");
+  console.log("Revoking deploying address as timelock contract admin...");
+  transaction = await timelock.revokeRole(DEFAULT_ADMIN_ROLE, owner.address);
+  await transaction.wait();
+  console.log("Role revoked!");
+  console.log(`Is owner admin? ${await timelock.hasRole(DEFAULT_ADMIN_ROLE, owner.address)}`);
+  console.log(`Is owner proposer? ${await timelock.hasRole(PROPOSER_ROLE, owner.address)}`);
+  console.log(`Is Colosseum proposer? ${await timelock.hasRole(PROPOSER_ROLE, await colosseum.getAddress())}`);
 
   // Mint Speedburn NFTs
   for (let i = 0; i < nftCount; i++) {
@@ -51,17 +75,11 @@ async function main() {
   }
   console.log("All NFTs have been listed!");
 
-  // Purchase NFT
-  console.log("Account #0: Purchasing Speedburn NFT");
-  let transaction = await marketplace.connect(owner).purchase(3, { value: nftPrice });
-  await transaction.wait();
-  console.log("Account #0: Speedburn purchased!");
-
-  // // Create profile
-  // console.log("Account #0: Creating user profile");
-  // transaction = await profile.connect(owner).createUser("spacy", "https://is5-ssl.mzstatic.com/image/thumb/Purple128/v4/cf/43/85/cf438590-1e50-4ee2-c0a8-96fa85501abb/source/512x512bb.jpg");
-  // transaction.wait();
-  // console.log("Account #0: User profile created!");
+  // // Purchase NFT
+  // console.log("Account #0: Purchasing Speedburn NFT");
+  // transaction = await marketplace.connect(owner).purchase(3, { value: nftPrice });
+  // await transaction.wait();
+  // console.log("Account #0: Speedburn purchased!");
 }
 
 main().catch((error) => {

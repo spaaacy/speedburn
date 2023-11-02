@@ -27,6 +27,9 @@ PostSchema.virtual("author", {
   justOne: true,
 });
 
+PostSchema.set("toJSON", { virtuals: true });
+PostSchema.set("toObject", { virtuals: true });
+
 const Post = models.Post || model("Post", PostSchema);
 
 export default Post;

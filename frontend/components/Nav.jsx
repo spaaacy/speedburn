@@ -24,8 +24,8 @@ const Nav = () => {
   });
 
   return (
-    <nav className="sticky top-0 z-10 bg-white">
-      <div className="flex justify-center items-center py-6 max-width">
+    <nav className="sticky top-0 z-10 bg-transparent">
+      <div className="flex justify-center items-center py-6 max-width max-xl:px-4">
         <div className="flex flex-1 justify-start items-end gap-6">
           <Link href="/">
             <h1 className="text-orange-600 font-bold text-3xl mr-4">SpeedBurn</h1>
@@ -45,7 +45,9 @@ const Nav = () => {
               displayPicture={displayPicture}
             />
           ) : (
-            <a href="marketplace" className="action-button">Purchase pass to begin</a>
+            <a href="marketplace" className="action-button">
+              Purchase pass to begin
+            </a>
           )
         ) : (
           <button className="action-button" type="button" onClick={() => signIn()}>
@@ -60,7 +62,9 @@ const Nav = () => {
 const NavAccount = ({ menuRef, signOut, showDropdown, setShowDropdown, username, displayPicture }) => {
   return (
     <div className="relative flex justify-end items-center gap-3">
-      <p className="font-semibold text-black">{username}</p>
+      <p className="font-semibold text-black hover:cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
+        {username}
+      </p>
       <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={displayPicture} />
       <div
         ref={menuRef}
