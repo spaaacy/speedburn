@@ -38,31 +38,41 @@ const Marketplace = () => {
 
   const submitPurchase = async (id) => {
     setLoading(true);
-    await purchaseNFT(id);
+    try {
+      await purchaseNFT(id);
 
-    // Check if account exists
-    const response = await fetch(`/api/users/${account}`, {
-      method: "GET",
-    });
-    
-    if (!(await response.json())) {
-      setCurrentState(MarketplaceState.Details);
+      // Check if account exists
+      const response = await fetch(`/api/users/${account}`, {
+        method: "GET",
+      });
+
+      if (!(await response.json())) {
+        setCurrentState(MarketplaceState.Details);
+        setLoading(false);
+      } else {
+        router("/");
+      }
+    } catch (error) {
+      console.error(error);
       setLoading(false);
-    } else {
-      router("/");
     }
   };
 
   const submitSellAccount = async () => {
     setLoading(true);
-    await listNFT();
-    window.location.reload();
+    try {
+      await listNFT();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      window.location.reload();
+    }
   };
 
   const submitDetails = async (e) => {
     e.preventDefault();
     try {
-      await fetch("/api/users/create", {  
+      await fetch("/api/users/create", {
         method: "POST",
         body: JSON.stringify({
           address: account,

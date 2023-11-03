@@ -1,18 +1,12 @@
 "use client";
 
 import { createContext, useEffect, useState } from "react";
-import config from "@/public/config.json";
-import speedburnArtifact from "@/public/abi/SpeedBurn.json";
-import marketplaceArtifact from "@/public/abi/Marketplace.json";
 import { ethers } from "ethers";
+import config from "@/public/contracts";
 
 export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
-  // Contract ABIs
-  const { abi: speedburnAbi } = speedburnArtifact;
-  const { abi: marketplaceAbi } = marketplaceArtifact;
-
   // Misc
   const nftPrice = ethers.parseEther("5");
   const [isContextInitialized, setIsContextInitialized] = useState(false);
@@ -29,12 +23,11 @@ export const Web3Provider = ({ children }) => {
   // Contracts
   const [marketplaceContract, setMarketplaceContract] = useState(null);
   const [speedburnContract, setSpeedBurnContract] = useState(null);
-  // const [blogContract, setBlogContract] = useState(null);
-  // const [profileContract, setProfileContract] = useState(null);
+  const [colosseumContract, setColosseumContract] = useState(null);
 
-  useEffect(() => {
-    const initializeContext = async () => {
-      let provider;
+  const initializeContext = async () => {
+    let provider;
+    try {
       if (window.ethereum == null) {
         provider = new ethers.getDefaultProvider();
       } else {
@@ -43,14 +36,12 @@ export const Web3Provider = ({ children }) => {
       setProvider(provider);
 
       // Initialize contracts
-      const speedburnContract = new ethers.Contract(config.account.address, speedburnAbi, provider);
+      const speedburnContract = new ethers.Contract(config.address.speedburn, config.speedburn, provider);
       setSpeedBurnContract(speedburnContract);
-      const marketplaceContract = new ethers.Contract(config.marketplace.address, marketplaceAbi, provider);
+      const marketplaceContract = new ethers.Contract(config.address.marketplace, config.marketplace, provider);
       setMarketplaceContract(marketplaceContract);
-      // const blogContract = new ethers.Contract(config.blog.address, blogAbi, provider);
-      // setBlogContract(blogContract);
-      // const profileContract = new ethers.Contract(config.profile.address, profileAbi, provider);
-      // setProfileContract(profileContract);
+      const colosseumContract = new ethers.Contract(config.address.colosseum, config.colosseum, provider);
+      setColosseumContract(colosseumContract);
 
       // Account change listener
       window.ethereum.on("accountsChanged", async () => {
@@ -60,8 +51,12 @@ export const Web3Provider = ({ children }) => {
       });
 
       setIsContextInitialized(true);
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     if (isContextInitialized) {
       signIn();
     } else {
@@ -105,43 +100,31 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
-  const getPosts = async () => {
-    // const posts = [];
-    // const users = {};
-    // const totalPosts = await blogContract.nextPostId();
-    // for (let i = 0; i < totalPosts; i++) {
-    //   const post = await blogContract.posts(i);
-    //   if (!users[post[3]]) {
-    //     const user = await profileContract.profiles(post[3]);
-    //     users[post[3]] = user;
-    //   }
-    //   posts.push(post);
-    // }
-    // setPosts(posts);
-    // setProfileCache(users);
-  };
-
   const signIn = async () => {
     if (!isContextInitialized) return;
 
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    setAccount(accounts[0]);
-    const isRegistered = await speedburnContract.balanceOf(accounts[0]);
-    setIsRegistered(isRegistered);
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      setAccount(accounts[0]);
+      const isRegistered = await speedburnContract.balanceOf(accounts[0]);
+      setIsRegistered(isRegistered);
 
-    // Fetch user from MongoDB
-    const response = await fetch(`/api/users/${accounts[0]}`, {
-      method: "GET",
-    });
-    const result = await response.json();
-    if (result) {
-      setUsername(result.username);
-      setDisplayPicture(result.image);
+      // Fetch user from MongoDB
+      const response = await fetch(`/api/users/${accounts[0]}`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      if (result) {
+        setUsername(result.username);
+        setDisplayPicture(result.image);
+      }
+
+      if (!isRegistered) return;
+      const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
+      setTokenOwned(tokenOwned);
+    } catch (error) {
+      console.error(error);
     }
-
-    if (!isRegistered) return;
-    const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
-    setTokenOwned(tokenOwned);
   };
 
   const signOut = () => {
@@ -153,12 +136,16 @@ export const Web3Provider = ({ children }) => {
 
   const retrieveListings = async () => {
     if (!isContextInitialized) return;
-    setListedAccounts([]);
-    const totalAccountNFTs = await speedburnContract.totalSupply();
-    for (let i = 0; i < totalAccountNFTs; i++) {
-      if (await marketplaceContract.isListed(i)) {
-        setListedAccounts((prevAccounts) => [...prevAccounts, i]);
+    try {
+      setListedAccounts([]);
+      const totalAccountNFTs = await speedburnContract.totalSupply();
+      for (let i = 0; i < totalAccountNFTs; i++) {
+        if (await marketplaceContract.isListed(i)) {
+          setListedAccounts((prevAccounts) => [...prevAccounts, i]);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 

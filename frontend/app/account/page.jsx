@@ -11,20 +11,25 @@ const Account = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await fetch(`/api/users/${account}/edit-details`, {
-      method: "PATCH",
-      body: JSON.stringify({
-        username: usernameField,
-        image: imageField,
-      }),
-    });
-    window.location.reload();
+    try {
+      await fetch(`/api/users/${account}/edit-details`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          username: usernameField,
+          image: imageField,
+        }),
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      window.location.reload();
+    }
   };
 
   return (
     <main className="w-full max-width flex justify-start items-center flex-col">
       <EditProfile
-      headerMessage={"Change account details"}
+        headerMessage={"Change account details"}
         confirmMessage={"Save changes"}
         handleSubmit={handleSubmit}
         setUsernameField={setUsernameField}

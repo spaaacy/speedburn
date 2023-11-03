@@ -8,16 +8,19 @@ import Hero from "@/components/Hero";
 
 const Home = () => {
   const { isContextInitialized, isRegistered } = useContext(Web3Context);
-
   const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
+  const fetchPosts = async () => {
+    try {
       const response = await fetch("/api/posts", { method: "GET" });
       const results = await response.json();
       setPosts(results);
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     if (!isContextInitialized || !isRegistered) return;
     fetchPosts();
   }, [isContextInitialized, isRegistered]);
