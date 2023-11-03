@@ -26,12 +26,15 @@ const Nav = () => {
   return (
     <nav className="sticky top-0 z-10 bg-transparent">
       <div className="flex justify-center items-center py-6 max-width max-xl:px-4">
-        <div className="flex flex-1 justify-start items-end gap-6">
+        <div className="flex flex-auto justify-start items-end gap-6">
           <Link href="/">
             <h1 className="text-orange-600 font-bold text-3xl mr-4">SpeedBurn</h1>
           </Link>
           <Link href="/marketplace" className="font-bold text-xl text-black">
             Marketplace
+          </Link>
+          <Link href="/guidelines" className="font-bold text-xl text-black">
+            Guidelines
           </Link>
         </div>
         {account ? (

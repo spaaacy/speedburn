@@ -8,14 +8,42 @@ import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
-contract Colosseum is Governor, GovernorSettings, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
-    constructor(IVotes _token, TimelockController _timelock)
+contract Colosseum is
+    Governor,
+    GovernorSettings,
+    GovernorCountingSimple,
+    GovernorVotes,
+    GovernorVotesQuorumFraction,
+    GovernorTimelockControl
+{
+    struct Clause {
+        string guideline;
+        bool active;
+    }
+
+    mapping(uint256 => Clause) public constitution;
+    uint256 public _nextAmendmentId;
+
+    constructor(
+        IVotes _token,
+        TimelockController _timelock,
+        string[] memory _constitution
+    )
         Governor("Colosseum")
         GovernorSettings(7200 /* 1 day */, 50400 /* 1 week */, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
-    {}
+    {
+        for (uint256 i = 0; i < _constitution.length; ++i) {
+            _amendConstitution(_constitution[i]);
+        }
+    }
+
+    function _amendConstitution(string memory _amendment) private {
+        uint256 amendmentId = _nextAmendmentId++;
+        constitution[amendmentId] = Clause(_amendment, true);
+    }
 
     // The following functions are overrides required by Solidity.
 
@@ -37,7 +65,9 @@ contract Colosseum is Governor, GovernorSettings, GovernorCountingSimple, Govern
         return super.votingPeriod();
     }
 
-    function quorum(uint256 blockNumber)
+    function quorum(
+        uint256 blockNumber
+    )
         public
         view
         override(Governor, GovernorVotesQuorumFraction)
@@ -46,7 +76,9 @@ contract Colosseum is Governor, GovernorSettings, GovernorCountingSimple, Govern
         return super.quorum(blockNumber);
     }
 
-    function state(uint256 proposalId)
+    function state(
+        uint256 proposalId
+    )
         public
         view
         override(Governor, GovernorTimelockControl)
@@ -55,12 +87,9 @@ contract Colosseum is Governor, GovernorSettings, GovernorCountingSimple, Govern
         return super.state(proposalId);
     }
 
-    function proposalNeedsQueuing(uint256 proposalId)
-        public
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (bool)
-    {
+    function proposalNeedsQueuing(
+        uint256 proposalId
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
         return super.proposalNeedsQueuing(proposalId);
     }
 
@@ -73,26 +102,45 @@ contract Colosseum is Governor, GovernorSettings, GovernorCountingSimple, Govern
         return super.proposalThreshold();
     }
 
-    function _queueOperations(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockControl)
-        returns (uint48)
-    {
-        return super._queueOperations(proposalId, targets, values, calldatas, descriptionHash);
+    function _queueOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint48) {
+        return
+            super._queueOperations(
+                proposalId,
+                targets,
+                values,
+                calldatas,
+                descriptionHash
+            );
     }
 
-    function _executeOperations(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockControl)
-    {
-        super._executeOperations(proposalId, targets, values, calldatas, descriptionHash);
+    function _executeOperations(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) {
+        super._executeOperations(
+            proposalId,
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
     }
 
-    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockControl)
-        returns (uint256)
-    {
+    function _cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 

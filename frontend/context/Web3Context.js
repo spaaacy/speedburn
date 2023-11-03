@@ -83,7 +83,7 @@ export const Web3Provider = ({ children }) => {
     try {
       // Approving transfer
       console.log("Approving transfer...");
-      let transaction = await speedburnContract.connect(signer).approve(config.marketplace.address, tokenId);
+      let transaction = await speedburnContract.connect(signer).approve(config.address.marketplace, tokenId);
       await transaction.wait();
       console.log("Tranfer approved!");
 

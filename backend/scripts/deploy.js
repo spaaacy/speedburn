@@ -4,11 +4,19 @@ async function main() {
   // Get account
   let transaction;
   const [owner] = await ethers.getSigners();
-  const nftCount = 50;
+  const nftCount = 10;
   const nftPrice = ethers.parseEther("5");
   const minDelay = BigInt(1);
   const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
   const PROPOSER_ROLE = ethers.id("PROPOSER_ROLE");
+  const constitution = [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    "Vestibulum quis mi bibendum, finibus augue fermentum, lobortis sapien.",
+    "Vivamus eu lacus eu tortor tincidunt facilisis. Fusce at tortor ac leo malesuada lobortis.",
+    "Nunc in ex commodo, pellentesque libero rutrum, pulvinar erat. Sed efficitur vel sem quis rhoncus. ",
+    "Duis tortor magna, finibus id fringilla et, convallis at elit. In luctus sagittis nunc, id feugiat nulla fermentum vitae.",
+    "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
+  ];
 
   // Deploy Speedburn nft contract
   console.log("Deploying Speedburn NFT");
@@ -34,7 +42,7 @@ async function main() {
   // Deploy Colosseum contract
   console.log("Deploying Colosseum Contract");
   const Colosseum = await ethers.getContractFactory("Colosseum");
-  const colosseum = await Colosseum.deploy(await speedburn.getAddress(), await timelock.getAddress());
+  const colosseum = await Colosseum.deploy(await speedburn.getAddress(), await timelock.getAddress(), constitution);
   console.log(`Colosseum contract deployed at address: ${await colosseum.getAddress()}`);
 
   // Grant governance contract proposer role and revoke owner address as admin

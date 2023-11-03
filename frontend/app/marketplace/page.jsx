@@ -7,9 +7,9 @@ import BounceLoader from "react-spinners/BounceLoader";
 import EditProfile from "@/components/EditProfile";
 
 const NFTItem = ({ id, submitPurchase, isRegistered }) => (
-  <div className="bg-white shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
-    <h3 className="font-semibold text-xl">{`Account: ${id}`}</h3>
-    <button onClick={() => submitPurchase(id)} disabled={isRegistered} type="button" className="action-button mt-4">
+  <div className="bg-orange-600 shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
+    <h3 className="font-semibold text-xl text-white">{`Account: ${id}`}</h3>
+    <button onClick={() => submitPurchase(id)} disabled={isRegistered} type="button" className="action-button mt-4 border-0">
       Purchase
     </button>
   </div>
@@ -58,20 +58,21 @@ const Marketplace = () => {
     }
   };
 
-  const submitSellAccount = async () => {
+  const submitSell = async () => {
     setLoading(true);
     try {
       await listNFT();
+      window.location.reload();
     } catch (error) {
       console.error(error);
-    } finally {
-      window.location.reload();
+      setLoading(false);
     }
   };
 
   const submitDetails = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       await fetch("/api/users/create", {
         method: "POST",
         body: JSON.stringify({
@@ -83,13 +84,14 @@ const Marketplace = () => {
       router("/");
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
   };
 
   return (
-    <main className="flex-1 flex max-width w-full">
+    <main className="flex-auto flex max-width w-full">
       {loading ? (
-        <div className="flex-1 flex justify-center items-center">
+        <div className="flex-auto flex justify-center items-center">
           <BounceLoader color="#ea580c" />
         </div>
       ) : (
@@ -104,7 +106,7 @@ const Marketplace = () => {
                   ))}
               </div>
               {isRegistered && (
-                <button type="button" className="action-button-dark self-end" onClick={submitSellAccount}>
+                <button type="button" className="action-button-dark self-end" onClick={submitSell}>
                   Sell account
                 </button>
               )}
