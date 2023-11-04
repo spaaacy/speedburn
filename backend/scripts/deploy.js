@@ -21,7 +21,7 @@ async function main() {
   // Deploy Speedburn nft contract
   console.log("Deploying Speedburn NFT");
   const Speedburn = await ethers.getContractFactory("SpeedBurn");
-  const speedburn = await Speedburn.deploy(owner.address);
+  const speedburn = await Speedburn.deploy(owner.address, constitution);
   console.log(`Speedburn NFT has been deployed at address: ${await speedburn.getAddress()}`);
 
   // Deploy marketplace contract
@@ -42,7 +42,7 @@ async function main() {
   // Deploy Colosseum contract
   console.log("Deploying Colosseum Contract");
   const Colosseum = await ethers.getContractFactory("Colosseum");
-  const colosseum = await Colosseum.deploy(await speedburn.getAddress(), await timelock.getAddress(), constitution);
+  const colosseum = await Colosseum.deploy(await speedburn.getAddress(), await timelock.getAddress());
   console.log(`Colosseum contract deployed at address: ${await colosseum.getAddress()}`);
 
   // Grant governance contract proposer role and revoke owner address as admin

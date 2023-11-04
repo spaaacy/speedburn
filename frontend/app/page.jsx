@@ -26,7 +26,7 @@ const Home = () => {
   }, [isContextInitialized, isRegistered]);
 
   return (
-    <main className="relative flex justify-center items-center flex-col gap-4">
+    <main className="flex flex-auto justify-center items-center flex-col gap-4">
       {!isRegistered && <Hero />}
 
       {isRegistered && (

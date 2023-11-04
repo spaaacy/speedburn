@@ -10,6 +10,8 @@ module.exports = {
       colors: {
         pale: "#FAF7FF",
         jet: "#343434",
+        jetlight: "#636363",
+        fireorange: "#FF4500"
       }
     },
   },

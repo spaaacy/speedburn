@@ -16,34 +16,16 @@ contract Colosseum is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
-    struct Clause {
-        string guideline;
-        bool active;
-    }
-
-    mapping(uint256 => Clause) public constitution;
-    uint256 public _nextAmendmentId;
-
     constructor(
         IVotes _token,
-        TimelockController _timelock,
-        string[] memory _constitution
+        TimelockController _timelock
     )
         Governor("Colosseum")
         GovernorSettings(7200 /* 1 day */, 50400 /* 1 week */, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
-    {
-        for (uint256 i = 0; i < _constitution.length; ++i) {
-            _amendConstitution(_constitution[i]);
-        }
-    }
-
-    function _amendConstitution(string memory _amendment) private {
-        uint256 amendmentId = _nextAmendmentId++;
-        constitution[amendmentId] = Clause(_amendment, true);
-    }
+    {}
 
     // The following functions are overrides required by Solidity.
 

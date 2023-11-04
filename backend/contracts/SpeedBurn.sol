@@ -10,14 +10,31 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
 contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
     uint256 private _nextTokenId;
     address private _marketplace;
+    mapping(uint256 => Clause) public constitution;
+    uint256 public nextAmendmentId;
+
+    struct Clause {
+        string guideline;
+        bool active;
+    }
 
     constructor(
-        address initialOwner
+        address initialOwner,
+        string[] memory _constitution
     )
         ERC721("SpeedBurn", "SBRN")
         Ownable(initialOwner)
         EIP712("SpeedBurn", "1")
-    {}
+    {
+        for (uint256 i = 0; i < _constitution.length; ++i) {
+            _amendConstitution(_constitution[i]);
+        }
+    }
+
+    function _amendConstitution(string memory _amendment) private {
+        uint256 amendmentId = nextAmendmentId++;
+        constitution[amendmentId] = Clause(_amendment, true);
+    }
 
     function setMarketplaceAddress(
         address _marketplaceAddress

@@ -26,7 +26,7 @@ const CreatePost = () => {
   return (
     <form
       onSubmit={(e) => handleSubmit(e)}
-      className="w-[720px] flex flex-col gap-4 h-[250px] p-4 rounded-xl bg-orange-600"
+      className="w-[720px] flex flex-col gap-4 h-[250px] p-4 rounded-xl bg-fireorange"
     >
       <input placeholder="Title" className="rounded-lg p-3" type="text" onChange={(e) => setTitle(e.target.value)} />
       <textarea

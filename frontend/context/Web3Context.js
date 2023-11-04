@@ -12,6 +12,7 @@ export const Web3Provider = ({ children }) => {
   const [isContextInitialized, setIsContextInitialized] = useState(false);
   const [provider, setProvider] = useState(null);
   const [listedAccounts, setListedAccounts] = useState([]);
+  const [constitution, setConstitution] = useState([]);
 
   // User
   const [account, setAccount] = useState(null);
@@ -64,6 +65,40 @@ export const Web3Provider = ({ children }) => {
     }
   }, [isContextInitialized]);
 
+  const signIn = async () => {
+    if (!isContextInitialized) return;
+
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      setAccount(accounts[0]);
+      const isRegistered = await speedburnContract.balanceOf(accounts[0]);
+      setIsRegistered(isRegistered);
+
+      // Fetch user from MongoDB
+      const response = await fetch(`/api/users/${accounts[0]}`, {
+        method: "GET",
+      });
+      const result = await response.json();
+      if (result) {
+        setUsername(result.username);
+        setDisplayPicture(result.image);
+      }
+
+      if (!isRegistered) return;
+      const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
+      setTokenOwned(tokenOwned);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const signOut = () => {
+    setAccount(null);
+    setIsRegistered(false);
+    setUsername("");
+    setDisplayPicture("");
+  };
+
   const purchaseNFT = async (id) => {
     if (!isContextInitialized) return;
     const signer = await provider.getSigner();
@@ -100,40 +135,6 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
-  const signIn = async () => {
-    if (!isContextInitialized) return;
-
-    try {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      setAccount(accounts[0]);
-      const isRegistered = await speedburnContract.balanceOf(accounts[0]);
-      setIsRegistered(isRegistered);
-
-      // Fetch user from MongoDB
-      const response = await fetch(`/api/users/${accounts[0]}`, {
-        method: "GET",
-      });
-      const result = await response.json();
-      if (result) {
-        setUsername(result.username);
-        setDisplayPicture(result.image);
-      }
-
-      if (!isRegistered) return;
-      const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
-      setTokenOwned(tokenOwned);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const signOut = () => {
-    setAccount(null);
-    setIsRegistered(false);
-    setUsername("");
-    setDisplayPicture("");
-  };
-
   const retrieveListings = async () => {
     if (!isContextInitialized) return;
     try {
@@ -149,6 +150,22 @@ export const Web3Provider = ({ children }) => {
     }
   };
 
+  const retrieveConstitution = async () => {
+    const constitution = [];
+    try {
+      const totalClauses = await speedburnContract.nextAmendmentId();
+      console.log(totalClauses);
+      for (let i = 0; i < totalClauses; i++) {
+        const clause = await speedburnContract.constitution(i);
+        if (!clause[1]) continue;
+        constitution.push(clause);
+      }
+      setConstitution(constitution);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Web3Context.Provider
       value={{
@@ -159,11 +176,13 @@ export const Web3Provider = ({ children }) => {
         displayPicture,
         listedAccounts,
         tokenOwned,
-        retrieveListings,
-        purchaseNFT,
+        constitution,
         signIn,
         signOut,
+        purchaseNFT,
         listNFT,
+        retrieveListings,
+        retrieveConstitution,
       }}
     >
       {children}

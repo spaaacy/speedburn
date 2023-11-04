@@ -7,7 +7,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import EditProfile from "@/components/EditProfile";
 
 const NFTItem = ({ id, submitPurchase, isRegistered }) => (
-  <div className="bg-orange-600 shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
+  <div className="bg-fireorange shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
     <h3 className="font-semibold text-xl text-white">{`Account: ${id}`}</h3>
     <button onClick={() => submitPurchase(id)} disabled={isRegistered} type="button" className="action-button mt-4 border-0">
       Purchase

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Web3Context } from "@/context/Web3Context";
 import UserImage from "./UserImage";
+import { formatAddress } from "@/util/helpers";
 
 const Nav = () => {
   const { signIn, signOut, account, username, displayPicture, isRegistered } = useContext(Web3Context);
@@ -28,13 +29,13 @@ const Nav = () => {
       <div className="flex justify-center items-center py-6 max-width max-xl:px-4">
         <div className="flex flex-auto justify-start items-end gap-6">
           <Link href="/">
-            <h1 className="text-orange-600 font-bold text-3xl mr-4">SpeedBurn</h1>
+            <h1 className="text-fireorange font-bold text-3xl mr-4">SpeedBurn</h1>
           </Link>
           <Link href="/marketplace" className="font-bold text-xl text-black">
             Marketplace
           </Link>
-          <Link href="/guidelines" className="font-bold text-xl text-black">
-            Guidelines
+          <Link href="/constitution" className="font-bold text-xl text-black">
+          Constitution
           </Link>
         </div>
         {account ? (
@@ -48,9 +49,12 @@ const Nav = () => {
               displayPicture={displayPicture}
             />
           ) : (
-            <a href="marketplace" className="action-button">
+            <>
+            <p className="font-semibold">{`Welcome: `}<span className="italic">{formatAddress(account)}</span></p>
+            <a href="marketplace" className="ml-4 action-button">
               Purchase pass to begin
             </a>
+            </>
           )
         ) : (
           <button className="action-button" type="button" onClick={() => signIn()}>

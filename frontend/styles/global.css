@@ -13,7 +13,7 @@
   }
 
   .action-button-dark {
-    @apply font-semibold rounded-full text-pale bg-jet px-4 py-2;
+    @apply font-semibold rounded-full text-pale bg-jet px-4 py-2 hover:bg-jetlight ;
   }
 
   .glass-morphism {
