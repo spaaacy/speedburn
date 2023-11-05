@@ -8,11 +8,12 @@ const Constitution = () => {
 
   useEffect(() => {
     if (!isContextInitialized) return;
-    retrieveConstitution();
+    const success = retrieveConstitution();
+    if (!success) console.error("Retrieve constitution unsuccessful!");
   }, [isContextInitialized]);
 
   const handleProposal = async (e) => {
-    e.preventDefault;
+    e.preventDefault();
   };
 
   return (

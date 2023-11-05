@@ -6,20 +6,6 @@ import { useRouter } from "next/navigation";
 import BounceLoader from "react-spinners/BounceLoader";
 import EditProfile from "@/components/EditProfile";
 
-const NFTItem = ({ id, submitPurchase, isRegistered }) => (
-  <div className="bg-fireorange shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
-    <h3 className="font-semibold text-xl text-white">{`Account: ${id}`}</h3>
-    <button onClick={() => submitPurchase(id)} disabled={isRegistered} type="button" className="action-button mt-4 border-0">
-      Purchase
-    </button>
-  </div>
-);
-
-const MarketplaceState = {
-  Purchase: 0,
-  Details: 1,
-};
-
 const Marketplace = () => {
   const { account, isContextInitialized, retrieveListings, purchaseNFT, listedAccounts, listNFT, isRegistered } =
     useContext(Web3Context);
@@ -33,46 +19,51 @@ const Marketplace = () => {
 
   useEffect(() => {
     if (!isContextInitialized) return;
-    retrieveListings();
+    const success = retrieveListings();
+    if (!success) console.error("Retrieve listings unsuccessful!");
   }, [isContextInitialized]);
 
   const submitPurchase = async (id) => {
     setLoading(true);
-    try {
-      await purchaseNFT(id);
+    const success = await purchaseNFT(id);
+    if (success) {
+      try {
+        // Check if account exists
+        const response = await fetch(`/api/users/${account}`, {
+          method: "GET",
+        });
 
-      // Check if account exists
-      const response = await fetch(`/api/users/${account}`, {
-        method: "GET",
-      });
-
-      if (!(await response.json())) {
-        setCurrentState(MarketplaceState.Details);
+        if (!(await response.json())) {
+          setCurrentState(MarketplaceState.Details);
+        } else {
+          router("/");
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
         setLoading(false);
-      } else {
-        router("/");
       }
-    } catch (error) {
-      console.error(error);
+    } else {
+      console.error("Submit purchase unsuccessful!");
       setLoading(false);
     }
   };
 
   const submitSell = async () => {
     setLoading(true);
-    try {
-      await listNFT();
+    const success = await listNFT();
+    if (success) {
       window.location.reload();
-    } catch (error) {
-      console.error(error);
+    } else {
+      console.error("Submit sell unsuccessful!");
       setLoading(false);
     }
   };
 
   const submitDetails = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true);
       await fetch("/api/users/create", {
         method: "POST",
         body: JSON.stringify({
@@ -92,7 +83,7 @@ const Marketplace = () => {
     <main className="flex-auto flex max-width w-full">
       {loading ? (
         <div className="flex-auto flex justify-center items-center">
-          <BounceLoader color="#ea580c" />
+          <BounceLoader color={"#FF4500"} />
         </div>
       ) : (
         <div className="flex-auto flex-col flex justify-start items-center">
@@ -126,6 +117,25 @@ const Marketplace = () => {
       )}
     </main>
   );
+};
+
+const NFTItem = ({ id, submitPurchase, isRegistered }) => (
+  <div className="bg-fireorange shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
+    <h3 className="font-semibold text-xl text-white">{`Account: ${id}`}</h3>
+    <button
+      onClick={() => submitPurchase(id)}
+      disabled={isRegistered}
+      type="button"
+      className="action-button mt-4 border-0"
+    >
+      Purchase
+    </button>
+  </div>
+);
+
+const MarketplaceState = {
+  Purchase: 0,
+  Details: 1,
 };
 
 export default Marketplace;

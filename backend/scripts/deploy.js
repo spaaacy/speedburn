@@ -1,4 +1,5 @@
 const { ethers } = require("hardhat");
+const { mine } = require("@nomicfoundation/hardhat-network-helpers");
 
 async function main() {
   // Get account
@@ -19,13 +20,13 @@ async function main() {
   ];
 
   // Deploy Speedburn nft contract
-  console.log("Deploying Speedburn NFT");
+  console.log("\nDeploying Speedburn NFT");
   const Speedburn = await ethers.getContractFactory("SpeedBurn");
   const speedburn = await Speedburn.deploy(owner.address, constitution);
   console.log(`Speedburn NFT has been deployed at address: ${await speedburn.getAddress()}`);
 
   // Deploy marketplace contract
-  console.log("Deploying Marketplace Contract");
+  console.log("\nDeploying Marketplace Contract");
   const Marketplace = await ethers.getContractFactory("Marketplace");
   const marketplace = await Marketplace.deploy(await speedburn.getAddress(), nftPrice);
   console.log(`Marketplace contract deployed at address: ${await marketplace.getAddress()}`);
@@ -34,19 +35,19 @@ async function main() {
   await transaction.wait();
 
   // Deploy timelock contract
-  console.log("Deploying Timelock Contract");
+  console.log("\nDeploying Timelock Contract");
   const Timelock = await ethers.getContractFactory("Timelock");
   const timelock = await Timelock.deploy(minDelay, [owner.address], [ethers.ZeroAddress], owner.address);
   console.log(`Timelock contract deployed at address: ${await timelock.getAddress()}`);
 
   // Deploy Colosseum contract
-  console.log("Deploying Colosseum Contract");
+  console.log("\nDeploying Colosseum Contract");
   const Colosseum = await ethers.getContractFactory("Colosseum");
   const colosseum = await Colosseum.deploy(await speedburn.getAddress(), await timelock.getAddress());
   console.log(`Colosseum contract deployed at address: ${await colosseum.getAddress()}`);
 
   // Grant governance contract proposer role and revoke owner address as admin
-  console.log("Granting Colosseum proposer role in timelock contract...");
+  console.log("\nGranting Colosseum proposer role in timelock contract...");
   transaction = await timelock.grantRole(PROPOSER_ROLE, await colosseum.getAddress());
   await transaction.wait();
   console.log("Role granted!");
@@ -62,19 +63,23 @@ async function main() {
   console.log(`Is owner proposer? ${await timelock.hasRole(PROPOSER_ROLE, owner.address)}`);
   console.log(`Is Colosseum proposer? ${await timelock.hasRole(PROPOSER_ROLE, await colosseum.getAddress())}`);
 
+  // TODO: Delegate tokens
+
   // Mint Speedburn NFTs
+  console.log("\nMinting NFTs...");
   for (let i = 0; i < nftCount; i++) {
     let transaction = await speedburn.safeMint(owner.address);
     await transaction.wait();
   }
+  console.log("NFTs minted!");
 
   // Approve NFTs for transfer
-  console.log("Approving NFTs for transfer...");
+  console.log("\nApproving NFTs for transfer...");
   for (let i = 0; i < nftCount; i++) {
-    let transaction = await speedburn.approve(await marketplace.getAddress(), i);
+    transaction = await speedburn.approve(await marketplace.getAddress(), i);
     await transaction.wait();
   }
-  console.log("NFTs approved for transfer");
+  console.log("\nNFTs approved for transfer");
   // List NFTs on marketplace
   console.log("Listing NFTs on marketplace...");
   for (let i = 0; i < nftCount; i++) {
@@ -83,11 +88,17 @@ async function main() {
   }
   console.log("All NFTs have been listed!");
 
-  // // Purchase NFT
-  // console.log("Account #0: Purchasing Speedburn NFT");
-  // transaction = await marketplace.connect(owner).purchase(3, { value: nftPrice });
-  // await transaction.wait();
-  // console.log("Account #0: Speedburn purchased!");
+  // Transfer SpeedBurn ownership
+  console.log("\nTransferring SpeedBurn contract ownership to Colosseum");
+  console.log(`Is deploying address owner of SpeedBurn? ${await speedburn.owner() == owner.address}`);
+  console.log(`Is Colosseum owner of SpeedBurn? ${await speedburn.owner() == await colosseum.getAddress()}`);
+  transaction = await speedburn.transferOwnership(await colosseum.getAddress());
+  console.log(`Is deploying address owner of SpeedBurn? ${await speedburn.owner() == owner.address}`);
+  console.log(`Is Colosseum owner of SpeedBurn? ${await speedburn.owner() == await colosseum.getAddress()}`);
+  
+  console.log("\nMining 10 blocks...");
+  mine(10);
+  console.log("Blocks mined!");
 }
 
 main().catch((error) => {

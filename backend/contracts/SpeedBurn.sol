@@ -31,6 +31,10 @@ contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
         }
     }
 
+    function amendConstitution(string calldata _amendment) public onlyOwner {
+        _amendConstitution(_amendment);
+    }
+
     function _amendConstitution(string memory _amendment) private {
         uint256 amendmentId = nextAmendmentId++;
         constitution[amendmentId] = Clause(_amendment, true);

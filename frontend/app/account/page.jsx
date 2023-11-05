@@ -26,6 +26,7 @@ const Account = () => {
     }
   };
 
+  // TODO: Check if user is registered; Create error component for unregistered users
   return (
     <main className="w-full max-width flex justify-start items-center flex-col">
       <EditProfile

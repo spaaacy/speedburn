@@ -30,7 +30,7 @@ const Home = () => {
       {!isRegistered && <Hero />}
 
       {isRegistered && (
-        <div className="max-width flex flex-col justify-start items-center">
+        <div className="max-width flex-auto flex flex-col justify-start items-start">
           <CreatePost />
           {posts.map((post, i) => (
             <Post
