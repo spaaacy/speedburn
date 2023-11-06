@@ -2,9 +2,11 @@
 
 import EditProfile from "@/components/EditProfile";
 import { Web3Context } from "@/context/Web3Context";
+import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 const Account = () => {
+  const router = useRouter()
   const [usernameField, setUsernameField] = useState("");
   const [imageField, setImageField] = useState("");
   const { account } = useContext(Web3Context);
@@ -22,7 +24,7 @@ const Account = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      window.location.reload();
+      router.refresh();
     }
   };
 

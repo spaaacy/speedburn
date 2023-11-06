@@ -10,8 +10,7 @@ const Marketplace = () => {
   const { account, isContextInitialized, retrieveListings, purchaseNFT, listedAccounts, listNFT, isRegistered } =
     useContext(Web3Context);
 
-  const { push: router } = useRouter();
-
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentState, setCurrentState] = useState(MarketplaceState.Purchase);
   const [usernameField, setUsernameField] = useState("");
@@ -36,7 +35,7 @@ const Marketplace = () => {
         if (!(await response.json())) {
           setCurrentState(MarketplaceState.Details);
         } else {
-          router("/");
+          router.push("/");
         }
       } catch (error) {
         console.error(error);
@@ -53,7 +52,7 @@ const Marketplace = () => {
     setLoading(true);
     const success = await listNFT();
     if (success) {
-      window.location.reload();
+      router.push("/");
     } else {
       console.error("Submit sell unsuccessful!");
       setLoading(false);
@@ -72,7 +71,7 @@ const Marketplace = () => {
           image: imageField,
         }),
       });
-      router("/");
+      router.push("/");
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -80,11 +79,13 @@ const Marketplace = () => {
   };
 
   return (
-    <main className="flex-auto flex max-width w-full">
+    <main className="flex-1 flex max-width w-full">
       {loading ? (
-        <div className="flex-auto flex justify-center items-center">
-          <BounceLoader color={"#FF4500"} />
-        </div>
+        <>
+          <div className="flex justify-center items-center flex-1 ">
+            <BounceLoader color={"#FF4500"} />
+          </div>
+        </>
       ) : (
         <div className="flex-auto flex-col flex justify-start items-center">
           {currentState === MarketplaceState.Purchase ? (

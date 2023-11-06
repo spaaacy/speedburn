@@ -14,7 +14,7 @@ export const RootLayout = ({ children }) => {
         <Web3Provider>
           <Nav />
           {children}
-          <Footer/>
+          <Footer />
         </Web3Provider>
       </body>
     </html>

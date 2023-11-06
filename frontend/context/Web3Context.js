@@ -3,11 +3,13 @@
 import { createContext, useEffect, useState } from "react";
 import { ethers, id } from "ethers";
 import config from "@/public/contracts";
+import { useRouter } from "next/navigation";
 
 export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
   // Misc
+  const router = useRouter();
   const nftPrice = ethers.parseEther("5");
   const [isContextInitialized, setIsContextInitialized] = useState(false);
   const [provider, setProvider] = useState(null);
@@ -49,7 +51,7 @@ export const Web3Provider = ({ children }) => {
       window.ethereum.on("accountsChanged", async () => {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         setAccount(accounts[0]);
-        window.location.reload();
+        router.push("/");
       });
 
       setIsContextInitialized(true);

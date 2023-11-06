@@ -1,6 +1,7 @@
 "use client";
 
 import { Web3Context } from "@/context/Web3Context";
+import Link from "next/link";
 import { useContext, useEffect } from "react";
 
 const Constitution = () => {
@@ -11,10 +12,6 @@ const Constitution = () => {
     const success = retrieveConstitution();
     if (!success) console.error("Retrieve constitution unsuccessful!");
   }, [isContextInitialized]);
-
-  const handleProposal = async (e) => {
-    e.preventDefault();
-  };
 
   return (
     <main className="max-width px-28 w-full flex flex-col gap-4 justify-start items-start">
@@ -29,9 +26,9 @@ const Constitution = () => {
         })}
       </ul>
       {isRegistered && (
-        <a className="action-button-dark self-end" href="/propose-amendment">
+        <Link className="action-button-dark self-end" href="/propose-amendment">
           Propose amendment
-        </a>
+        </Link>
       )}
     </main>
   );
