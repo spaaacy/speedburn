@@ -24,6 +24,17 @@ const ProposalSchema = Schema({
   },
 });
 
+ProposalSchema.virtual("author", {
+  ref: "User",
+  localField: "proposer",
+  foreignField: "address",
+  justOne: true,
+});
+
+ProposalSchema.set("toJSON", { virtuals: true });
+ProposalSchema.set("toObject", { virtuals: true });
+
+
 const Proposal = models.Proposal || model("Proposal", ProposalSchema);
 
 export default Proposal;

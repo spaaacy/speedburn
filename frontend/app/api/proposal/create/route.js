@@ -3,7 +3,6 @@ import { connectToDb } from "@/util/database";
 
 export const POST = async (req, res) => {
   const proposal = await req.json();
-  console.log(proposal);
   try {
     await connectToDb();
     await Proposal.create(proposal);

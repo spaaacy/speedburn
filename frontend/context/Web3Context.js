@@ -15,6 +15,7 @@ export const Web3Provider = ({ children }) => {
   const [provider, setProvider] = useState(null);
   const [listedAccounts, setListedAccounts] = useState([]);
   const [constitution, setConstitution] = useState([]);
+  const [proposals, setProposals] = useState([]);
 
   // User
   const [account, setAccount] = useState(null);
@@ -171,7 +172,6 @@ export const Web3Provider = ({ children }) => {
     const constitution = [];
     try {
       const totalClauses = await speedburnContract.nextAmendmentId();
-      console.log(totalClauses);
       for (let i = 0; i < totalClauses; i++) {
         const clause = await speedburnContract.constitution(i);
         if (!clause[1]) continue;
@@ -202,7 +202,6 @@ export const Web3Provider = ({ children }) => {
         voteEnd: `${receipt.logs[0].args.voteEnd}`,
         description: receipt.logs[0].args.description,
       };
-      console.log(proposal);
       await fetch("/api/proposal/create", {
         method: "POST",
         body: JSON.stringify(proposal),
@@ -213,6 +212,15 @@ export const Web3Provider = ({ children }) => {
     }
     return success;
   };
+
+  const retrieveProposals = async () => {
+    const currentBlock = await provider.getBlockNumber();
+    const response = await fetch(`/api/proposal?block_number=${currentBlock}`, {
+      method: "GET"
+    });
+    const proposals = await response.json() 
+    setProposals(proposals);
+  }
 
   return (
     <Web3Context.Provider
@@ -225,6 +233,7 @@ export const Web3Provider = ({ children }) => {
         listedAccounts,
         tokenOwned,
         constitution,
+        proposals,
         signIn,
         signOut,
         purchaseNFT,
@@ -232,6 +241,7 @@ export const Web3Provider = ({ children }) => {
         retrieveListings,
         retrieveConstitution,
         proposeAmendment,
+        retrieveProposals
       }}
     >
       {children}
