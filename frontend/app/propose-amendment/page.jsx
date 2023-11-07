@@ -23,7 +23,7 @@ const page = () => {
 
           <form onSubmit={(e) => handleSubmit(e)} className="flex justify-start items-center w-[75%] mt-4">
             <input
-              className="p-3 rounded-lg border-jet focus:outline-none focus:border-fireorange border-2 w-full"
+              className="p-3 rounded-lg border-jet focus:outline-none focus:border-fire border-2 w-full"
               type="text"
               onChange={(e) => setBody(e.target.value)}
               placeholder="Amendment"

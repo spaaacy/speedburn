@@ -18,6 +18,11 @@ async function main() {
     "Duis tortor magna, finibus id fringilla et, convallis at elit. In luctus sagittis nunc, id feugiat nulla fermentum vitae.",
     "Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
   ];
+  const amendments = [
+    "Fusce iaculis orci in turpis molestie congue at ac neque.",
+    "Nullam in feugiat arcu, in malesuada nibh.",
+    "Sed luctus lacus vitae massa sodales, vitae pharetra turpis vehicula.",
+  ];
 
   // Deploy Speedburn nft contract
   console.log("\nDeploying Speedburn NFT");
@@ -69,7 +74,7 @@ async function main() {
   console.log("\nMinting NFTs...");
   for (let i = 0; i < nftCount; i++) {
     let transaction = await speedburn.safeMint(owner.address);
-    await transaction.wait();
+    await transaction.wait();``
   }
   console.log("NFTs minted!");
 
@@ -90,15 +95,27 @@ async function main() {
 
   // Transfer SpeedBurn ownership
   console.log("\nTransferring SpeedBurn contract ownership to Colosseum");
-  console.log(`Is deploying address owner of SpeedBurn? ${await speedburn.owner() == owner.address}`);
-  console.log(`Is Colosseum owner of SpeedBurn? ${await speedburn.owner() == await colosseum.getAddress()}`);
+  console.log(`Is deploying address owner of SpeedBurn? ${(await speedburn.owner()) == owner.address}`);
+  console.log(`Is Colosseum owner of SpeedBurn? ${(await speedburn.owner()) == (await colosseum.getAddress())}`);
   transaction = await speedburn.transferOwnership(await colosseum.getAddress());
-  console.log(`Is deploying address owner of SpeedBurn? ${await speedburn.owner() == owner.address}`);
-  console.log(`Is Colosseum owner of SpeedBurn? ${await speedburn.owner() == await colosseum.getAddress()}`);
-  
-  console.log("\nMining 10 blocks...");
-  mine(10);
-  console.log("Blocks mined!");
+  console.log(`Is deploying address owner of SpeedBurn? ${(await speedburn.owner()) == owner.address}`);
+  console.log(`Is Colosseum owner of SpeedBurn? ${(await speedburn.owner()) == (await colosseum.getAddress())}`);
+
+  // Create proposals
+  console.log("\nCreating proposals...");
+  const calldata1 = speedburn.interface.encodeFunctionData("amendConstitution", [amendments[0]]);
+  const calldata2 = speedburn.interface.encodeFunctionData("amendConstitution", [amendments[1]]);
+  const calldata3 = speedburn.interface.encodeFunctionData("amendConstitution", [amendments[2]]);
+  transaction = await colosseum.propose([await speedburn.getAddress()], [0], [calldata1], amendments[0]);
+  let receipt = await transaction.wait();
+  console.log(`Proposal 1 ID: ${receipt.logs[0].args.proposalId}`);
+  transaction = await colosseum.propose([await speedburn.getAddress()], [0], [calldata2], amendments[1]);
+  receipt = await transaction.wait();
+  console.log(`Proposal 2 ID: ${receipt.logs[0].args.proposalId}`);
+  transaction = await colosseum.propose([await speedburn.getAddress()], [0], [calldata3], amendments[2]);
+  receipt = await transaction.wait();
+  console.log(`Proposal 3 ID: ${receipt.logs[0].args.proposalId}`);
+  console.log("Proposals created!");
 }
 
 main().catch((error) => {

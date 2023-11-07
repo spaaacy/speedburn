@@ -26,21 +26,21 @@ const Home = () => {
         <h1 className="text-9xl text-left font-bold text-blue-100 mix-blend-difference">
           Welcome to
           <br />
-          <span className="text-fireorange">SpeedBurn</span>
+          <span className="text-fire">SpeedBurn</span>
         </h1>
         <div className="flex items-center mt-10 gap-6">
-          <Link href="/marketplace" className="text-white font-bold text-lg hover:text-fireorange">
+          <Link href="/marketplace" className="text-white font-bold text-lg hover:text-fire">
             Marketplace
           </Link>
-          <Link href="/colosseum" className="text-white font-bold text-lg hover:text-fireorange">
+          <Link href="/colosseum" className="text-white font-bold text-lg hover:text-fire">
             Colosseum
           </Link>
-          <Link href="/constitution" className="text-white font-bold text-lg hover:text-fireorange">
+          <Link href="/constitution" className="text-white font-bold text-lg hover:text-fire">
             Constitution
           </Link>
           {
             account && !isRegistered &&
-            <Link href="marketplace" className="action-button ml-auto hover:bg-fireorange hover:text-white">
+            <Link href="marketplace" className="action-button ml-auto hover:bg-fire hover:text-white">
             Purchase pass to begin
           </Link>
           }

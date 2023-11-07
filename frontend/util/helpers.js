@@ -15,3 +15,13 @@ export const formatDate = (timestamp) => {
 export const formatAddress = (address) => {
   return `${address.slice(0, 5)}...${address.slice(38, 42)}`;
 };
+
+export const formatProposalid = (proposalId) => {
+  return `${proposalId.slice(0, 5)}...${proposalId.slice(-5)}`;
+}
+
+export const calculateTimeLeft = (currentBlock, endBlock) => {
+  const secondsPerBlock = 12;
+  const result = parseInt(endBlock) - currentBlock
+  return {seconds: result * secondsPerBlock, blocks: result};
+}

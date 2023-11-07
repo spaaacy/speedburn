@@ -11,7 +11,8 @@ module.exports = {
         pale: "#FAF7FF",
         jet: "#343434",
         jetlight: "#636363",
-        fireorange: "#FF4500"
+        fire: "#FF4500",
+        firedark: "#CC3600"
       }
     },
   },

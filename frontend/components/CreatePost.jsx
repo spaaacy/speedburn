@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 const CreatePost = () => {
-  const router = useRouter()
+  const router = useRouter();
   const { account } = useContext(Web3Context);
   const [body, setBody] = useState("");
   const [title, setTitle] = useState("");
@@ -11,7 +11,6 @@ const CreatePost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    } catch (error) {
       await fetch("/api/posts/create", {
         method: "POST",
         body: JSON.stringify({
@@ -20,7 +19,10 @@ const CreatePost = () => {
           authorAddress: account,
         }),
       });
+    } catch (error) {
+      console.error(error);
     } finally {
+      // FIXME: Page does not seem to refresh
       router.refresh();
     }
   };
@@ -28,7 +30,7 @@ const CreatePost = () => {
   return (
     <form
       onSubmit={(e) => handleSubmit(e)}
-      className="w-[720px] flex flex-col gap-4 h-[250px] p-4 rounded-xl bg-fireorange"
+      className="w-[720px] flex flex-col gap-4 h-[250px] p-4 rounded-xl bg-jet"
     >
       <input placeholder="Title" className="rounded-lg p-3" type="text" onChange={(e) => setTitle(e.target.value)} />
       <textarea
@@ -37,7 +39,7 @@ const CreatePost = () => {
         type="text"
         onChange={(e) => setBody(e.target.value)}
       />
-      <button onSubmit={(e) => handleSubmit(e)} type="submit" className="action-button-dark w-[12%] self-end">
+      <button onSubmit={(e) => handleSubmit(e)} type="submit" className="action-button w-[12%] self-end">
         Post
       </button>
     </form>

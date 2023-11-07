@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
-
 contract Colosseum is
     Governor,
     GovernorSettings,
@@ -17,12 +16,14 @@ contract Colosseum is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
+    // FIXME: Change voting delay/period back
+    // GovernorSettings(7200 /* 1 day */, 50400 /* 1 week */, 0)
     constructor(
         IVotes _token,
         TimelockController _timelock
     )
         Governor("Colosseum")
-        GovernorSettings(7200 /* 1 day */, 50400 /* 1 week */, 0)
+        GovernorSettings(0, 5, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)

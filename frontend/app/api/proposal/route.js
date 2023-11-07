@@ -1,6 +1,5 @@
 import Proposal from "@/models/proposal";
 import { connectToDb } from "@/util/database";
-import { ethers } from "ethers";
 
 export const GET = async (req, res) => {
   try {

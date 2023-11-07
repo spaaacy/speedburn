@@ -31,15 +31,15 @@ const Nav = () => {
         <div className="flex justify-center items-center py-6 max-width max-xl:px-4">
           <div className="flex flex-auto justify-start items-end gap-6">
             <Link href={isRegistered ? "/feed" : "/"} >
-              <h1 className="text-fireorange font-bold text-3xl mr-4">SpeedBurn</h1>
+              <h1 className="text-fire font-bold text-3xl mr-4">SpeedBurn</h1>
             </Link>
-            <Link href="/marketplace" className="font-bold text-xl text-black">
+            <Link href="/marketplace" className="font-bold text-xl text-black hover:text-fire">
               Marketplace
             </Link>
-            <Link href="/colosseum" className="font-bold text-xl text-black">
+            <Link href="/colosseum" className="font-bold text-xl text-black hover:text-fire">
               Colosseum
             </Link>
-            <Link href="/constitution" className="font-bold text-xl text-black">
+            <Link href="/constitution" className="font-bold text-xl text-black hover:text-fire">
               Constitution
             </Link>
           </div>

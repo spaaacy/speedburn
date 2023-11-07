@@ -5,6 +5,12 @@ import { ethers, id } from "ethers";
 import config from "@/public/contracts";
 import { useRouter } from "next/navigation";
 
+export const VoteType = {
+  Against: 0,
+  For: 1,
+  Abstain: 2,
+};
+
 export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
@@ -69,12 +75,17 @@ export const Web3Provider = ({ children }) => {
     }
   }, [isContextInitialized]);
 
+  const getCurrentBlock = async () => {
+    if (!isContextInitialized) return;
+    return await provider.getBlockNumber();
+  }
+  
   const signIn = async () => {
     let success = false;
     if (!isContextInitialized) return success;
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      setAccount(accounts[0]);
+        setAccount(accounts[0]);
       const isRegistered = await speedburnContract.balanceOf(accounts[0]);
       setIsRegistered(isRegistered);
 
@@ -107,7 +118,7 @@ export const Web3Provider = ({ children }) => {
 
   const purchaseNFT = async (id) => {
     let success = false;
-    if (!isContextInitialized) return success;
+    if (!isContextInitialized || !id) return success;
     const signer = await provider.getSigner();
     try {
       const transaction = await marketplaceContract.connect(signer).purchase(id, { value: nftPrice });
@@ -124,6 +135,7 @@ export const Web3Provider = ({ children }) => {
 
   const listNFT = async () => {
     let success = false;
+    if (!isContextInitialized) return success;
     const signer = await provider.getSigner();
     const tokenId = await speedburnContract.tokenOfOwnerByIndex(account, 0);
     try {
@@ -169,6 +181,7 @@ export const Web3Provider = ({ children }) => {
 
   const retrieveConstitution = async () => {
     let success = false;
+    if (!isContextInitialized) return success;
     const constitution = [];
     try {
       const totalClauses = await speedburnContract.nextAmendmentId();
@@ -187,6 +200,7 @@ export const Web3Provider = ({ children }) => {
 
   const proposeAmendment = async (amendment) => {
     let success = false;
+    if (!isContextInitialized || !amendment) return success;
     try {
       // Create proposal
       const signer = await provider.getSigner();
@@ -195,9 +209,10 @@ export const Web3Provider = ({ children }) => {
         .connect(signer)
         .propose([config.speedburn.address], [0], [calldata], amendment);
       const receipt = await transaction.wait();
+      console.log(`Proposal ID: ${receipt.logs[0].args.proposalId}`);
       const proposal = {
         proposalId: `${receipt.logs[0].args.proposalId}`,
-        proposer: receipt.logs[0].args.proposer,
+        proposer: (receipt.logs[0].args.proposer).toLowerCase(),
         voteStart: `${receipt.logs[0].args.voteStart}`,
         voteEnd: `${receipt.logs[0].args.voteEnd}`,
         description: receipt.logs[0].args.description,
@@ -214,13 +229,34 @@ export const Web3Provider = ({ children }) => {
   };
 
   const retrieveProposals = async () => {
-    const currentBlock = await provider.getBlockNumber();
-    const response = await fetch(`/api/proposal?block_number=${currentBlock}`, {
-      method: "GET"
-    });
-    const proposals = await response.json() 
-    setProposals(proposals);
-  }
+    let success = false;
+    if (!isContextInitialized) return success;
+    try {
+      const currentBlock = await provider.getBlockNumber();
+      const response = await fetch(`/api/proposal?block_number=${currentBlock}`, {
+        method: "GET",
+      });
+      const proposals = await response.json();
+      setProposals(proposals);
+      success = true;
+    } catch (error) {
+      console.error(error);
+    }
+    return success;
+  };
+
+  const castVote = async (proposalId, support) => {
+    let success = false;
+    if (!isContextInitialized || !proposalId || !support) return success;
+    try {
+      const transaction = await colosseum.castVote(proposalId, support);
+      await transaction.wait();
+      success = true;
+    } catch (error) {
+      console.error(error);
+    }
+    return success;
+  };
 
   return (
     <Web3Context.Provider
@@ -234,6 +270,7 @@ export const Web3Provider = ({ children }) => {
         tokenOwned,
         constitution,
         proposals,
+        getCurrentBlock,
         signIn,
         signOut,
         purchaseNFT,
@@ -241,7 +278,8 @@ export const Web3Provider = ({ children }) => {
         retrieveListings,
         retrieveConstitution,
         proposeAmendment,
-        retrieveProposals
+        retrieveProposals,
+        castVote,
       }}
     >
       {children}
