@@ -19,8 +19,8 @@ export const ProposalState = {
   4: "Succeeded",
   5: "Queued",
   6: "Expired",
-  7: "Executed"
-}
+  7: "Executed",
+};
 
 export const Web3Context = createContext();
 
@@ -40,6 +40,7 @@ export const Web3Provider = ({ children }) => {
   const [username, setUsername] = useState(null);
   const [displayPicture, setDisplayPicture] = useState(null);
   const [tokenOwned, setTokenOwned] = useState(null);
+  const [delegate, setDelegate] = useState(null);
 
   // Contracts
   const [marketplaceContract, setMarketplaceContract] = useState(null);
@@ -64,7 +65,6 @@ export const Web3Provider = ({ children }) => {
       setMarketplaceContract(marketplaceContract);
       const colosseumContract = new ethers.Contract(config.colosseum.address, config.colosseum.abi, provider);
       setColosseumContract(colosseumContract);
-
 
       // Account change listener
       window.ethereum.on("accountsChanged", async () => {
@@ -98,7 +98,8 @@ export const Web3Provider = ({ children }) => {
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       setAccount(accounts[0]);
-      const isRegistered = await speedburnContract.balanceOf(accounts[0]);
+      const balance = await speedburnContract.balanceOf(accounts[0]);
+      const isRegistered = balance == 1
       setIsRegistered(isRegistered);
 
       // Fetch user from MongoDB
@@ -115,7 +116,8 @@ export const Web3Provider = ({ children }) => {
       if (!isRegistered) return success;
       const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
       setTokenOwned(tokenOwned);
-      console.log(await speedburnContract.delegates(accounts[0]));
+      const delegate = await speedburnContract.delegates(accounts[0]);
+      setDelegate(delegate);
     } catch (error) {
       console.error(error);
     }
@@ -136,7 +138,9 @@ export const Web3Provider = ({ children }) => {
     try {
       const transaction = await marketplaceContract.connect(signer).purchase(id, { value: nftPrice });
       await transaction.wait();
-      setIsRegistered(await speedburnContract.balanceOf(account));
+      // FIXME: Might not work in live blockchain
+      const balance = await speedburnContract.balanceOf(account);
+      setIsRegistered(balance == 1);
       const newListings = await retrieveListings();
       if (!newListings) console.error("Retrieve listings unsuccessful!");
       success = true;
@@ -273,7 +277,6 @@ export const Web3Provider = ({ children }) => {
     let success = false;
     if (!isContextInitialized || !proposalId || !support) return success;
     try {
-      console.log({proposalId, support});
       const signer = await provider.getSigner();
       const transaction = await colosseumContract.connect(signer).castVote(proposalId, support);
       await transaction.wait();
@@ -289,11 +292,27 @@ export const Web3Provider = ({ children }) => {
     let votes;
     try {
       votes = await colosseumContract.proposalVotes(proposalId);
+      console.log(votes);
     } catch (error) {
       console.error(error);
     }
     return votes;
-  }
+  };
+
+  const setAccountDelegate = async () => {
+    let success = false;
+    if (!isContextInitialized || !account) return success;
+    try {
+      const signer = await provider.getSigner();
+      await speedburnContract.connect(signer).delegate(account);
+      // FIXME: Might not work in live blockchain
+      const delegate = await speedburnContract.delegates(account);
+      setDelegate(delegate);
+    } catch (error) {
+      console.error(error);
+    }
+    return success;
+  };
 
   return (
     <Web3Context.Provider
@@ -307,6 +326,7 @@ export const Web3Provider = ({ children }) => {
         tokenOwned,
         constitution,
         proposals,
+        delegate,
         getCurrentBlock,
         signIn,
         signOut,
@@ -319,6 +339,7 @@ export const Web3Provider = ({ children }) => {
         getProposalState,
         castVote,
         getProposalVotes,
+        setAccountDelegate
       }}
     >
       {children}

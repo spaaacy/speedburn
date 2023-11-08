@@ -7,8 +7,17 @@ import BounceLoader from "react-spinners/BounceLoader";
 import EditProfile from "@/components/EditProfile";
 
 const Marketplace = () => {
-  const { account, isContextInitialized, retrieveListings, purchaseNFT, listedAccounts, listNFT, isRegistered } =
-    useContext(Web3Context);
+  const {
+    account,
+    isContextInitialized,
+    retrieveListings,
+    purchaseNFT,
+    listedAccounts,
+    listNFT,
+    isRegistered,
+    delegate,
+    setAccountDelegate,
+  } = useContext(Web3Context);
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -105,6 +114,9 @@ const Marketplace = () => {
             </>
           ) : currentState === MarketplaceState.Details ? (
             <EditProfile
+              account={account}
+              setAccountDelegate={setAccountDelegate}
+              delegate={delegate}
               headerMessage={"Setup your account"}
               setImageField={setImageField}
               setUsernameField={setUsernameField}

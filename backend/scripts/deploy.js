@@ -68,8 +68,6 @@ async function main() {
   console.log(`Is owner proposer? ${await timelock.hasRole(PROPOSER_ROLE, owner.address)}`);
   console.log(`Is Colosseum proposer? ${await timelock.hasRole(PROPOSER_ROLE, await colosseum.getAddress())}`);
 
-  // TODO: Delegate tokens
-
   // Mint Speedburn NFTs
   console.log("\nMinting NFTs...");
   for (let i = 0; i < nftCount; i++) {

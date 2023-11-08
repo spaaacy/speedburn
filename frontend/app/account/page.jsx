@@ -3,14 +3,19 @@
 import EditProfile from "@/components/EditProfile";
 import { Web3Context } from "@/context/Web3Context";
 import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const Account = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [usernameField, setUsernameField] = useState("");
   const [imageField, setImageField] = useState("");
-  const { account } = useContext(Web3Context);
+  const { isContextInitialized, delegate, setAccountDelegate, account } = useContext(Web3Context);
 
+  const handleDelegate = async () => {
+    await setAccountDelegate();
+    router.refresh();
+  }
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -32,6 +37,9 @@ const Account = () => {
   return (
     <main className="w-full max-width flex justify-start items-center flex-col">
       <EditProfile
+      account={account}
+        delegate={delegate}
+        setAccountDelegate={setAccountDelegate}
         headerMessage={"Change account details"}
         confirmMessage={"Save changes"}
         handleSubmit={handleSubmit}

@@ -51,26 +51,6 @@ contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
         _safeMint(to, tokenId);
     }
 
-    // Custom function override for tranferFrom
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override(IERC721, ERC721) {
-        if (to == address(0)) {
-            revert ERC721InvalidReceiver(address(0));
-        }
-        // Receiver must not own account NFT || sender must be contract owner || receiver must be marketplace
-        require(
-            balanceOf(to) <= 0 || from == owner() || to == _marketplace,
-            "Address already owns account NFT"
-        );
-        address previousOwner = _update(to, tokenId, _msgSender());
-        if (previousOwner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
-        }
-    }
-
     // The following functions are overrides required by Solidity.
 
     function _update(
