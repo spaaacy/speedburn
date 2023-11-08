@@ -11,6 +11,17 @@ export const VoteType = {
   Abstain: 2,
 };
 
+export const ProposalState = {
+  0: "Pending",
+  1: "Active",
+  2: "Canceled",
+  3: "Defeated",
+  4: "Succeeded",
+  5: "Queued",
+  6: "Expired",
+  7: "Executed"
+}
+
 export const Web3Context = createContext();
 
 export const Web3Provider = ({ children }) => {
@@ -54,6 +65,7 @@ export const Web3Provider = ({ children }) => {
       const colosseumContract = new ethers.Contract(config.colosseum.address, config.colosseum.abi, provider);
       setColosseumContract(colosseumContract);
 
+
       // Account change listener
       window.ethereum.on("accountsChanged", async () => {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -78,14 +90,14 @@ export const Web3Provider = ({ children }) => {
   const getCurrentBlock = async () => {
     if (!isContextInitialized) return;
     return await provider.getBlockNumber();
-  }
-  
+  };
+
   const signIn = async () => {
     let success = false;
     if (!isContextInitialized) return success;
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setAccount(accounts[0]);
+      setAccount(accounts[0]);
       const isRegistered = await speedburnContract.balanceOf(accounts[0]);
       setIsRegistered(isRegistered);
 
@@ -103,6 +115,7 @@ export const Web3Provider = ({ children }) => {
       if (!isRegistered) return success;
       const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
       setTokenOwned(tokenOwned);
+      console.log(await speedburnContract.delegates(accounts[0]));
     } catch (error) {
       console.error(error);
     }
@@ -212,7 +225,7 @@ export const Web3Provider = ({ children }) => {
       console.log(`Proposal ID: ${receipt.logs[0].args.proposalId}`);
       const proposal = {
         proposalId: `${receipt.logs[0].args.proposalId}`,
-        proposer: (receipt.logs[0].args.proposer).toLowerCase(),
+        proposer: receipt.logs[0].args.proposer.toLowerCase(),
         voteStart: `${receipt.logs[0].args.voteStart}`,
         voteEnd: `${receipt.logs[0].args.voteEnd}`,
         description: receipt.logs[0].args.description,
@@ -245,11 +258,24 @@ export const Web3Provider = ({ children }) => {
     return success;
   };
 
+  const getProposalState = async (proposalId) => {
+    let proposalState;
+    if (!isContextInitialized || !proposalId) return;
+    try {
+      proposalState = await colosseumContract.state(proposalId);
+    } catch (error) {
+      console.error(error);
+    }
+    return proposalState;
+  };
+
   const castVote = async (proposalId, support) => {
     let success = false;
     if (!isContextInitialized || !proposalId || !support) return success;
     try {
-      const transaction = await colosseum.castVote(proposalId, support);
+      console.log({proposalId, support});
+      const signer = await provider.getSigner();
+      const transaction = await colosseumContract.connect(signer).castVote(proposalId, support);
       await transaction.wait();
       success = true;
     } catch (error) {
@@ -257,6 +283,17 @@ export const Web3Provider = ({ children }) => {
     }
     return success;
   };
+
+  const getProposalVotes = async (proposalId) => {
+    if (!isContextInitialized || !proposalId) return;
+    let votes;
+    try {
+      votes = await colosseumContract.proposalVotes(proposalId);
+    } catch (error) {
+      console.error(error);
+    }
+    return votes;
+  }
 
   return (
     <Web3Context.Provider
@@ -279,7 +316,9 @@ export const Web3Provider = ({ children }) => {
         retrieveConstitution,
         proposeAmendment,
         retrieveProposals,
+        getProposalState,
         castVote,
+        getProposalVotes,
       }}
     >
       {children}

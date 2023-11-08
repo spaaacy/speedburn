@@ -51,7 +51,7 @@ contract SpeedBurn is ERC721, ERC721Enumerable, Ownable, EIP712, ERC721Votes {
         _safeMint(to, tokenId);
     }
 
-    // Custom function override to enforce ownership of only one account
+    // Custom function override for tranferFrom
     function transferFrom(
         address from,
         address to,
