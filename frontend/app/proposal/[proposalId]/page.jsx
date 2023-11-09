@@ -2,11 +2,12 @@
 
 import { ProposalState, VoteType, Web3Context } from "@/context/Web3Context";
 import { calculateTimeLeft, formatAddress } from "@/util/helpers";
+import { Log } from "ethers";
 import { useParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
 const ProposalDetails = () => {
-  const { isContextInitialized, getCurrentBlock, getProposalState, castVote, getProposalVotes } =
+  const { isContextInitialized, getCurrentBlock, getProposalState, castVote, getProposalVotes, queueProposal, executeProposal } =
     useContext(Web3Context);
   const [proposal, setProposal] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -14,7 +15,7 @@ const ProposalDetails = () => {
   const [proposalVotes, setProposalVotes] = useState(null);
   const { proposalId } = useParams();
 
-  const fetchProposal = async () => { 
+  const fetchProposal = async () => {
     const response = await fetch(`/api/proposal/${proposalId}`, {
       method: "GET",
     });
@@ -48,19 +49,33 @@ const ProposalDetails = () => {
     }
   };
 
-  const handleReject = async () => {
-    const success = await castVote(proposal.proposalId, VoteType.Reject);
+  const handleAgainst = async () => {
+    const success = await castVote(proposal.proposalId, VoteType.Against);
     if (!success) {
-      console.error("Handle accept unsuccessful!");
+      console.error("Handle against unsuccessful!");
     }
   };
 
   const handleAbstain = async () => {
     const success = await castVote(proposal.proposalId, VoteType.Abstain);
     if (!success) {
-      console.error("Handle accept unsuccessful!");
+      console.error("Handle abstain unsuccessful!");
     }
   };
+
+  const handleQueue = async () => {
+    const success = await queueProposal(proposal.description);
+    if (!success) {
+      console.error("Handle queue unsuccessful!");
+    }
+   }
+
+   const handleExecute = async () => {
+    const success = await executeProposal(proposal.description);
+    if (!success) {
+      console.error("Handle execute unsuccessful!");
+    }
+   }
 
   return (
     <main className="max-width w-full">
@@ -80,12 +95,13 @@ const ProposalDetails = () => {
               {proposalState && (
                 <p className={"font-bold"}>
                   {`State: `}
-                  <span className={`${proposalState === 1 ? "text-green-600" : "text-red-600"}`}>
+                  <span className={`${proposalState === 1 ? "text-green-600" : "text-black"}`}>
                     {`${ProposalState[proposalState].toUpperCase()}`}
                   </span>
                 </p>
               )}
-              {timeLeft && (
+              {timeLeft && timeLeft.blocks >= 0 && (
+
                 <p>
                   {`Ends in: ${timeLeft.seconds} seconds`}
                   <span className="italic">{` (${timeLeft.blocks} blocks)`}</span>
@@ -105,27 +121,51 @@ const ProposalDetails = () => {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <button
-                  className="w-28 action-button-dark hover:bg-red-700 hover:text-white"
-                  onClick={handleReject}
-                  type="button"
-                >
-                  Reject
-                </button>
-                <button
-                  className="w-28 action-button-dark hover:bg-yellow-500 hover:text-white"
-                  onClick={handleAbstain}
-                  type="button"
-                >
-                  Abstain
-                </button>
-                <button
-                  className="w-28 action-button-dark hover:bg-green-600 hover:text-white"
-                  onClick={handleAccept}
-                  type="button"
-                >
-                  Accept
-                </button>
+                {
+                  proposalState === 1 &&
+                  <>
+
+                    <button
+                      className="w-28 action-button-dark hover:bg-red-700 hover:text-white"
+                      onClick={handleAgainst}
+                      type="button"
+                    >
+                      Against
+                    </button>
+                    <button
+                      className="w-28 action-button-dark hover:bg-yellow-500 hover:text-white"
+                      onClick={handleAbstain}
+                      type="button"
+                    >
+                      Abstain
+                    </button>
+                    <button
+                      className="w-28 action-button-dark hover:bg-green-600 hover:text-white"
+                      onClick={handleAccept}
+                      type="button"
+                    >
+                      Accept
+                    </button>
+                  </>
+                }
+                {proposalState === 4 &&
+                  <button
+                    className="w-28 action-button-dark hover:bg-green-600 hover:text-white"
+                    onClick={handleQueue}
+                    type="button"
+                  >
+                    Queue
+
+                  </button>}
+                {proposalState === 5 &&
+                  <button
+                    className="w-28 action-button-dark hover:bg-green-600 hover:text-white"
+                    onClick={handleExecute}
+                    type="button"
+                  >
+                    Execute
+
+                  </button>}
               </div>
             </div>
           </>

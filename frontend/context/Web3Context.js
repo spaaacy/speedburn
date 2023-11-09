@@ -1,5 +1,4 @@
 "use client";
-
 import { createContext, useEffect, useState } from "react";
 import { ethers, id } from "ethers";
 import config from "@/public/contracts";
@@ -21,6 +20,7 @@ export const ProposalState = {
   6: "Expired",
   7: "Executed",
 };
+
 
 export const Web3Context = createContext();
 
@@ -133,7 +133,8 @@ export const Web3Provider = ({ children }) => {
 
   const purchaseNFT = async (id) => {
     let success = false;
-    if (!isContextInitialized || !id) return success;
+    // TODO: Add null check for id
+    if (!isContextInitialized) return success;
     const signer = await provider.getSigner();
     try {
       const transaction = await marketplaceContract.connect(signer).purchase(id, { value: nftPrice });
@@ -275,11 +276,13 @@ export const Web3Provider = ({ children }) => {
 
   const castVote = async (proposalId, support) => {
     let success = false;
-    if (!isContextInitialized || !proposalId || !support) return success;
+    // TODO: Add null check for support
+    if (!isContextInitialized || !proposalId) return success;
     try {
       const signer = await provider.getSigner();
       const transaction = await colosseumContract.connect(signer).castVote(proposalId, support);
-      await transaction.wait();
+      const receipt = await transaction.wait();
+      console.log(receipt.logs[0].args);
       success = true;
     } catch (error) {
       console.error(error);
@@ -292,7 +295,6 @@ export const Web3Provider = ({ children }) => {
     let votes;
     try {
       votes = await colosseumContract.proposalVotes(proposalId);
-      console.log(votes);
     } catch (error) {
       console.error(error);
     }
@@ -314,6 +316,38 @@ export const Web3Provider = ({ children }) => {
     return success;
   };
 
+  const queueProposal = async (amendment) => {
+    let success = false
+    if (!isContextInitialized || !amendment) return success;
+    try {
+      const signer = await provider.getSigner()
+      const calldata = speedburnContract.interface.encodeFunctionData("amendConstitution", [amendment]);
+      const descriptionHash = ethers.id(amendment)
+      const transaction = await colosseumContract.connect(signer).queue([config.speedburn.address], [0], [calldata], descriptionHash);
+      await transaction.wait();
+      success = true
+    } catch (error) {
+      console.error(error);
+    }
+    return success
+  }
+
+  const executeProposal = async (amendment) => {
+    let success = false
+    if (!isContextInitialized || !amendment) return success;
+    try {
+      const signer = await provider.getSigner()
+      const calldata = speedburnContract.interface.encodeFunctionData("amendConstitution", [amendment]);
+      const descriptionHash = ethers.id(amendment)
+      const transaction = await colosseumContract.connect(signer).execute([config.speedburn.address], [0], [calldata], descriptionHash);
+      await transaction.wait();
+      success = true
+    } catch (error) {
+      console.error(error);
+    }
+    return success
+  }
+  
   return (
     <Web3Context.Provider
       value={{
@@ -339,7 +373,9 @@ export const Web3Provider = ({ children }) => {
         getProposalState,
         castVote,
         getProposalVotes,
-        setAccountDelegate
+        setAccountDelegate,
+        queueProposal,
+        executeProposal
       }}
     >
       {children}
