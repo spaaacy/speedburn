@@ -1,9 +1,7 @@
 import { Web3Context } from "@/context/Web3Context";
-import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 const CreatePost = () => {
-  const router = useRouter();
   const { account } = useContext(Web3Context);
   const [body, setBody] = useState("");
   const [title, setTitle] = useState("");
@@ -22,8 +20,7 @@ const CreatePost = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      // FIXME: Page does not seem to refresh
-      router.refresh();
+      window.location.reload()
     }
   };
 

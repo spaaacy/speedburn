@@ -12,9 +12,9 @@ export const GET = async (req, res) => {
     
     await connectToDb();
     console.log(parseInt(blockNumber)+1);
-    // const proposals = await Proposal.where('voteEnd').gt(parseInt(blockNu  mber)-1).populate("author");
-    const proposals = await Proposal.where('voteEnd').populate("author");
-    return new Response(JSON.stringify(proposals), { status: 200 });
+    const activeProposals = await Proposal.where('voteEnd').gt(parseInt(blockNumber)-1).populate("author");
+    const pastProposals = await Proposal.where('voteEnd').lte(parseInt(blockNumber)-1).populate("author");
+    return new Response(JSON.stringify({activeProposals, pastProposals}), { status: 200 });
   } catch (error) {
     console.error(error);
     return new Response(error, { status: 500 });

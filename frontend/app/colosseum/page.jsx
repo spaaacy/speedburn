@@ -3,23 +3,43 @@
 import { VoteType, Web3Context } from "@/context/Web3Context";
 import { formatAddress, formatProposalid } from "@/util/helpers";
 import Link from "next/link";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const Colosseum = () => {
-  const { isContextInitialized, retrieveProposals, proposals, castVote } = useContext(Web3Context);
+  const [activeProposals, setActiveProposals] = useState([]);
+  const [pastProposals, setPastProposals] = useState([]);
+  const { isContextInitialized, retrieveProposals } = useContext(Web3Context);
+
+
+  const fetchProposals = async () => {
+    const proposals = await retrieveProposals();
+    setActiveProposals(proposals.activeProposals); 
+    setPastProposals(proposals.pastProposals); 
+  }
 
   useEffect(() => {
     if (!isContextInitialized) return;
-    retrieveProposals();
+    fetchProposals();
   }, [isContextInitialized]);
 
 
 
   return (
-    <main className="max-width w-full">
+    <main className="max-width w-full flex flex-col gap-4">
+      <h1 className="font-bold text-fire text-3xl">Active Proposals</h1>
       <div className="grid grid-cols-2 gap-4">
-        {proposals &&
-          proposals.map((proposal, i) => (
+        {activeProposals &&
+          activeProposals.map((proposal, i) => (
+            <ProposalItem
+              key={i}
+              proposal={proposal}
+            />
+          ))}
+      </div>
+      <h2 className="font-bold text-fire text-3xl">Previous Proposals</h2>
+      <div className="grid grid-cols-2 gap-4">
+        {pastProposals &&
+          pastProposals.map((proposal, i) => (
             <ProposalItem
               key={i}
               proposal={proposal}

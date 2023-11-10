@@ -32,7 +32,6 @@ export const Web3Provider = ({ children }) => {
   const [provider, setProvider] = useState(null);
   const [listedAccounts, setListedAccounts] = useState([]);
   const [constitution, setConstitution] = useState([]);
-  const [proposals, setProposals] = useState([]);
 
   // User
   const [account, setAccount] = useState(null);
@@ -246,20 +245,18 @@ export const Web3Provider = ({ children }) => {
   };
 
   const retrieveProposals = async () => {
-    let success = false;
-    if (!isContextInitialized) return success;
+    let proposals;
+    if (!isContextInitialized) return proposals;
     try {
       const currentBlock = await provider.getBlockNumber();
       const response = await fetch(`/api/proposal?block_number=${currentBlock}`, {
         method: "GET",
       });
-      const proposals = await response.json();
-      setProposals(proposals);
-      success = true;
+      proposals = await response.json();
     } catch (error) {
       console.error(error);
     }
-    return success;
+    return proposals;
   };
 
   const getProposalState = async (proposalId) => {
@@ -358,7 +355,6 @@ export const Web3Provider = ({ children }) => {
         listedAccounts,
         tokenOwned,
         constitution,
-        proposals,
         delegate,
         getCurrentBlock,
         signIn,

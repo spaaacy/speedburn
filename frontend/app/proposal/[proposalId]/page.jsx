@@ -2,8 +2,8 @@
 
 import { ProposalState, VoteType, Web3Context } from "@/context/Web3Context";
 import { calculateTimeLeft, formatAddress } from "@/util/helpers";
-import { Log } from "ethers";
 import { useParams } from "next/navigation";
+
 import { useContext, useEffect, useState } from "react";
 
 const ProposalDetails = () => {
@@ -44,6 +44,7 @@ const ProposalDetails = () => {
 
   const handleAccept = async () => {
     const success = await castVote(proposal.proposalId, VoteType.For);
+    window.location.reload();
     if (!success) {
       console.error("Handle accept unsuccessful!");
     }
@@ -51,6 +52,7 @@ const ProposalDetails = () => {
 
   const handleAgainst = async () => {
     const success = await castVote(proposal.proposalId, VoteType.Against);
+    window.location.reload();
     if (!success) {
       console.error("Handle against unsuccessful!");
     }
@@ -58,6 +60,7 @@ const ProposalDetails = () => {
 
   const handleAbstain = async () => {
     const success = await castVote(proposal.proposalId, VoteType.Abstain);
+    window.location.reload();
     if (!success) {
       console.error("Handle abstain unsuccessful!");
     }
@@ -65,6 +68,7 @@ const ProposalDetails = () => {
 
   const handleQueue = async () => {
     const success = await queueProposal(proposal.description);
+    window.location.reload();
     if (!success) {
       console.error("Handle queue unsuccessful!");
     }
@@ -72,6 +76,7 @@ const ProposalDetails = () => {
 
    const handleExecute = async () => {
     const success = await executeProposal(proposal.description);
+    window.location.reload();
     if (!success) {
       console.error("Handle execute unsuccessful!");
     }
@@ -150,16 +155,17 @@ const ProposalDetails = () => {
                 }
                 {proposalState === 4 &&
                   <button
-                    className="w-28 action-button-dark hover:bg-green-600 hover:text-white"
+                    className="w-28 action-button-dark hover:bg-fire hover:text-white"
                     onClick={handleQueue}
                     type="button"
                   >
                     Queue
 
                   </button>}
-                {proposalState === 5 &&
+                {/* {proposalState === 5 && */}
+                {5 === 5 &&
                   <button
-                    className="w-28 action-button-dark hover:bg-green-600 hover:text-white"
+                    className="w-28 action-button-dark hover:bg-fire hover:text-white"
                     onClick={handleExecute}
                     type="button"
                   >
