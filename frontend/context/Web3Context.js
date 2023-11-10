@@ -227,7 +227,6 @@ export const Web3Provider = ({ children }) => {
         .connect(signer)
         .propose([config.speedburn.address], [0], [calldata], amendment);
       const receipt = await transaction.wait();
-      console.log(`Proposal ID: ${receipt.logs[0].args.proposalId}`);
       const proposal = {
         proposalId: `${receipt.logs[0].args.proposalId}`,
         proposer: receipt.logs[0].args.proposer.toLowerCase(),

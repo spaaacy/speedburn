@@ -8,8 +8,7 @@ async function main() {
   const nftCount = 10;
   const nftPrice = ethers.parseEther("5");
   const minDelay = BigInt(1);
-  const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
-  const PROPOSER_ROLE = ethers.id("PROPOSER_ROLE");
+
   const constitution = [
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     "Vestibulum quis mi bibendum, finibus augue fermentum, lobortis sapien.",
@@ -52,8 +51,15 @@ async function main() {
   console.log(`Colosseum contract deployed at address: ${await colosseum.getAddress()}`);
 
   // Grant governance contract proposer role and revoke owner address as admin
+  const DEFAULT_ADMIN_ROLE = ethers.ZeroHash;
+  const PROPOSER_ROLE = await timelock.PROPOSER_ROLE();
+  const EXECUTOR_ROLE = await timelock.EXECUTOR_ROLE();
   console.log("\nGranting Colosseum proposer role in timelock contract...");
   transaction = await timelock.grantRole(PROPOSER_ROLE, await colosseum.getAddress());
+  await transaction.wait();
+  console.log("Role granted!");
+  console.log("\nGranting Colosseum executor role in timelock contract...");
+  transaction = await timelock.grantRole(EXECUTOR_ROLE, await colosseum.getAddress());
   await transaction.wait();
   console.log("Role granted!");
   console.log("Revoking deploying address as timelock contract proposer...");
@@ -67,6 +73,7 @@ async function main() {
   console.log(`Is owner admin? ${await timelock.hasRole(DEFAULT_ADMIN_ROLE, address0.address)}`);
   console.log(`Is owner proposer? ${await timelock.hasRole(PROPOSER_ROLE, address0.address)}`);
   console.log(`Is Colosseum proposer? ${await timelock.hasRole(PROPOSER_ROLE, await colosseum.getAddress())}`);
+  console.log(`Is Colosseum executor? ${await timelock.hasRole(EXECUTOR_ROLE, await colosseum.getAddress())}`);
 
   // Mint Speedburn NFTs
   console.log("\nMinting NFTs...");
@@ -90,6 +97,26 @@ async function main() {
     await transaction.wait();
   }
   console.log("All NFTs have been listed!");
+
+  // Mint and delegate to address #1
+  console.log("\nMinting and delegating token to address #0... ");
+  transaction = await speedburn.safeMint(address0.address)
+  await transaction.wait()
+  transaction = await speedburn.connect(address0).delegate(address0.address);
+  await transaction.wait()
+  console.log("Token has been minted and delegated!");
+  console.log("Minting and delegating token to address #1... ");
+  transaction = await speedburn.safeMint(address1.address)
+  await transaction.wait()
+  transaction = await speedburn.connect(address1).delegate(address1.address);
+  await transaction.wait()
+  console.log("Token has been minted and delegated!");
+  console.log("Minting and delegating token to address #2... ");
+  transaction = await speedburn.safeMint(address2.address)
+  await transaction.wait()
+  transaction = await speedburn.connect(address2).delegate(address2.address);
+  await transaction.wait()
+  console.log("Token has been minted and delegated!");
   
   // Create proposals
   // console.log("\nCreating proposals...");
@@ -107,21 +134,13 @@ async function main() {
   // console.log(`Proposal 3 ID: ${receipt.logs[0].args.proposalId}`);
   // console.log("Proposals created!");
 
-  // Mint and delegate to address #1
-  // console.log("Minting and delegating token to address #1... ");
-  // transaction = await speedburn.safeMint(address0.address)
-  // await transaction.wait()
-  // transaction = await speedburn.delegate(address0.address);
-  // await transaction.wait()
-  // console.log("Token has been minted and delegated!");
-
   // Transfer SpeedBurn ownership
-  console.log("\nTransferring SpeedBurn contract ownership to Colosseum");
+  console.log("\nTransferring SpeedBurn contract ownership to Timelock");
   console.log(`Is deploying address owner of SpeedBurn? ${(await speedburn.owner()) == address0.address}`);
-  console.log(`Is Colosseum owner of SpeedBurn? ${(await speedburn.owner()) == (await colosseum.getAddress())}`);
-  transaction = await speedburn.transferOwnership(await colosseum.getAddress());
+  console.log(`Is Timelock owner of SpeedBurn? ${(await speedburn.owner()) == (await timelock.getAddress())}`);
+  transaction = await speedburn.transferOwnership(await timelock.getAddress());
   console.log(`Is deploying address owner of SpeedBurn? ${(await speedburn.owner()) == address0.address}`);
-  console.log(`Is Colosseum owner of SpeedBurn? ${(await speedburn.owner()) == (await colosseum.getAddress())}`);
+  console.log(`Is Timelock owner of SpeedBurn? ${(await speedburn.owner()) == (await timelock.getAddress())}`);
 }
 
 main().catch((error) => {

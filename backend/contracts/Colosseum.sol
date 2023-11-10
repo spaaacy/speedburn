@@ -23,7 +23,7 @@ contract Colosseum is
         TimelockController _timelock
     )
         Governor("Colosseum")
-        GovernorSettings(0, 10, 0)
+        GovernorSettings(0, 5, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
