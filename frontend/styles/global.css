@@ -1,26 +1,47 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-@layer components {
-  .max-width {
-    max-width: 1080px;
-    margin: 0 auto;
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  @layer base {
+    h1 {
+      @apply font-roboto text-3xl
+    }
+
+    h2 {
+      @apply font-roboto
+    }
+
+    p {
+      @apply font-roboto
+    }
+
+    a {
+      @apply font-roboto
+    }
+    
   }
 
-  .action-button {
-    @apply font-semibold rounded-full text-jet bg-pale border-[1.5px] border-jet px-4 py-2 disabled:text-gray-400 disabled:border-gray-400;
-  }
+  @layer components {
+    .max-width {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
 
-  .action-button-dark {
-    @apply font-semibold rounded-full text-pale bg-jet px-4 py-2 hover:bg-fire ;
-  }
+    .action-button {
+      @apply font-semibold rounded-full text-jet bg-transparent px-4 py-2 disabled:text-gray-400 hover:text-fire;
+    }
 
-  .glass-morphism {
-    background: rgba(0, 0, 0, 0.13);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5.2px);
-    -webkit-backdrop-filter: blur(5.2px);
+    .action-button-dark {
+      @apply font-semibold rounded-full text-pale bg-jet px-4 py-2 hover:bg-fire;
+    }
+
+    .glass-morphism {
+      background: rgba(0, 0, 0, 0.13);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5.2px);
+      -webkit-backdrop-filter: blur(5.2px);
+    }
   }
-}

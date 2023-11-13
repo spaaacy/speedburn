@@ -2,12 +2,13 @@
 
 import EditProfile from "@/components/EditProfile";
 import { Web3Context } from "@/context/Web3Context";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 const Account = () => {
   const [usernameField, setUsernameField] = useState("");
   const [imageField, setImageField] = useState("");
-  const { delegate, setAccountDelegate, account } = useContext(Web3Context);
+  const [delegate, setDelegate] = useState(null);
+  const { isInitialized, getAccountDelegate, setAccountDelegate, account } = useContext(Web3Context);
 
   const handleDelegate = async () => {
     await setAccountDelegate();
@@ -31,9 +32,22 @@ const Account = () => {
     }
   };
 
+  const fetchAccountDelegate = async () => {
+    const delegate = await getAccountDelegate(account);
+    setDelegate(delegate)
+    if (!delegate) {
+      console.error("Fetch account delegate unsuccessful!");
+    }
+  }
+  
+  useEffect(() => {
+    if (!isInitialized || !account) return;
+    fetchAccountDelegate();
+  }, [isInitialized, account])
+  
   // TODO: Check if user is registered; Create error component for unregistered users
   return (
-    <main className="w-full max-width flex justify-start items-center flex-col">
+    <main className="w-full max-width flex justify-center">
       <EditProfile
       account={account}
         delegate={delegate}

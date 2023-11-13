@@ -7,14 +7,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 const Home = () => {
-  const { isRegistered, account } = useContext(Web3Context);
+  const { ownsSpeedburn } = useContext(Web3Context);
   const router = useRouter();
 
   useEffect(() => {
-    if (isRegistered) {
-      router.push("/feed")
+    if (ownsSpeedburn) {
+      router.push("/")
     }
-  }, [isRegistered]);
+  }, [ownsSpeedburn]);
 
   return (
     <main className="flex-1 flex">
@@ -29,30 +29,13 @@ const Home = () => {
             <span className="text-fire">SpeedBurn</span>
           </h1>
           <div className="flex max-sm:justify items-center mt-10 max-sm:mt-20 gap-6">
-            <Link href="/marketplace" className="text-white font-bold max-sm:text-base text-lg hover:text-fire">
-              Marketplace
+            <Link href="/communities" className="text-white font-bold text-lg max-sm:text-base hover:text-fire">
+              Communities
             </Link>
             <Link href="/colosseum" className="text-white font-bold text-lg max-sm:text-base hover:text-fire">
               Colosseum
             </Link>
-            <Link href="/constitution" className="text-white font-bold text-lg max-sm:text-base hover:text-fire">
-              Constitution
-            </Link>
-            {
-              account && !isRegistered && window.innerWidth > 640 && 
-                
-                <Link href="marketplace" className="action-button ml-auto hover:bg-fire hover:text-white">
-                Purchase pass to begin
-                </Link>
-            }
           </div>
-            {
-              account && !isRegistered && window.innerWidth <= 640 && 
-                
-                <Link href="marketplace" className="action-button mt-6 hover:bg-fire text-sm hover:text-white">
-                Purchase pass to begin
-                </Link>
-            }
         </div>
       </div>
     </main>

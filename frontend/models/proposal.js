@@ -3,24 +3,24 @@ import { Schema, models, model } from "mongoose";
 const ProposalSchema = Schema({
   proposalId: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true, "Proposal must have an ID!"],
+    required: [true, "Proposal already exists!"],
   },
   proposer: {
     type: String,
-    required: true,
+    required: [true, "Proposer must be provided!"],
   },
   voteStart: {
     type: String,
-    required: true,
+    required: [true, "Vote start must be provided!"],
   },
   voteEnd: {
     type: String,
-    required: true,
+    required: [true, "Vote end must be provided!"],
   },
   description: {
     type: String,
-    required: true,
+    required: [true, "Description must be provided!"],
   },
 });
 

@@ -13,6 +13,9 @@ module.exports = {
         jetlight: "#636363",
         fire: "#FF4500",
         firedark: "#CC3600"
+      },
+      fontFamily: {
+        roboto: ['Roboto', 'sans-serif']
       }
     },
   },

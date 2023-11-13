@@ -3,34 +3,51 @@
 import { Web3Context } from "@/context/Web3Context";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import BounceLoader from "react-spinners/BounceLoader";
 import EditProfile from "@/components/EditProfile";
+import Loader from "@/components/Loader";
 
 const Marketplace = () => {
   const {
     account,
-    isContextInitialized,
+    isInitialized,
     retrieveListings,
     purchaseNFT,
-    listedAccounts,
     listNFT,
-    isRegistered,
-    delegate,
+    ownsSpeedburn,
+    getAccountDelegate,
     setAccountDelegate,
   } = useContext(Web3Context);
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [listings, setListings] = useState([])
   const [currentState, setCurrentState] = useState(MarketplaceState.Purchase);
   const [usernameField, setUsernameField] = useState("");
   const [imageField, setImageField] = useState("");
+  const [delegate, setDelegate] = useState(null)
 
   useEffect(() => {
-    if (!isContextInitialized) return;
-    const success = retrieveListings();
-    if (!success) console.error("Retrieve listings unsuccessful!");
-  }, [isContextInitialized]);
+    if (!isInitialized) return;
+    fetchListings()
+    fetchAccountDelegate();
+  }, [isInitialized]);
 
+  const fetchListings = async () => {
+    const listings = await retrieveListings();
+    setListings(listings)
+    if (!listings) {
+      console.error("Fetch listings unsuccessful");
+    }
+  }
+
+  const fetchAccountDelegate = async () => {
+    const delegate = await getAccountDelegate();
+    setDelegate(delegate)
+    if (!delegate) {
+      console.error("Fetch account delegate unsuccessful!");
+    }
+  }
+  
   const submitPurchase = async (id) => {
     setLoading(true);
     const success = await purchaseNFT(id);
@@ -44,7 +61,7 @@ const Marketplace = () => {
         if (!(await response.json())) {
           setCurrentState(MarketplaceState.Details);
         } else {
-          router.push("/");
+          router.push("/colosseum");
         }
       } catch (error) {
         console.error(error);
@@ -61,7 +78,7 @@ const Marketplace = () => {
     setLoading(true);
     const success = await listNFT();
     if (success) {
-      router.push("/");
+      router.push("/colosseum");
     } else {
       console.error("Submit sell unsuccessful!");
       setLoading(false);
@@ -80,7 +97,7 @@ const Marketplace = () => {
           image: imageField,
         }),
       });
-      router.push("/");
+      router.push("/colosseum");
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -90,23 +107,19 @@ const Marketplace = () => {
   return (
     <main className="flex-1 flex max-width w-full">
       {loading ? (
-        <>
-          <div className="flex justify-center items-center flex-1 ">
-            <BounceLoader color={"#FF4500"} />
-          </div>
-        </>
+        <Loader />
       ) : (
         <div className="flex-auto flex-col flex justify-start items-center">
           {currentState === MarketplaceState.Purchase ? (
             <>
               <h1 className="text-3xl self-start font-bold">View SpeedBurns available for sale</h1>
               <div className="grid grid-cols-6 gap-4 mt-4">
-                {listedAccounts &&
-                  listedAccounts.map((id) => (
-                    <NFTItem isRegistered={isRegistered} key={id} id={id} submitPurchase={submitPurchase} />
+                {listings &&
+                  listings.map((id) => (
+                    <NFTItem isRegistered={ownsSpeedburn} key={id} id={id} submitPurchase={submitPurchase} />
                   ))}
               </div>
-              {isRegistered && (
+              {ownsSpeedburn && (
                 <button type="button" className="action-button-dark self-end" onClick={submitSell}>
                   Sell account
                 </button>
@@ -139,7 +152,7 @@ const NFTItem = ({ id, submitPurchase, isRegistered }) => (
       onClick={() => submitPurchase(id)}
       disabled={isRegistered}
       type="button"
-      className="action-button mt-4 border-0"
+      className="action-button bg-pale hover:text-jet mt-4 border-0"
     >
       Purchase
     </button>

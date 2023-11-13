@@ -1,9 +1,9 @@
 import Proposal from "@/models/proposal";
 import { connectToDb } from "@/util/database";
 
-export const GET = async (req, { params }) => {
+export const GET = async (req, res) => {
   try {
-    const { proposalId } = params;
+    const { proposalId } = res.params;
     await connectToDb();
     const proposal = await Proposal.findOne({ proposalId }).populate("author");
     return new Response(JSON.stringify(proposal), { status: 200 });

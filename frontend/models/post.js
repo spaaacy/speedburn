@@ -10,25 +10,21 @@ const PostSchema = Schema(
       type: String,
       required: [true, "Body cannot be left empty"],
     },
-    authorAddress: {
-      type: String,
-      required: [true, "Author address must be provided"],
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Author must be provided"],
     },
+    community: {
+      type: Schema.Types.ObjectId,
+      ref: "Community",
+      required: [true, "Community must be provided"],
+    }
   },
   {
     timestamps: true,
   }
 );
-
-PostSchema.virtual("author", {
-  ref: "User",
-  localField: "authorAddress",
-  foreignField: "address",
-  justOne: true,
-});
-
-PostSchema.set("toJSON", { virtuals: true });
-PostSchema.set("toObject", { virtuals: true });
 
 const Post = models.Post || model("Post", PostSchema);
 

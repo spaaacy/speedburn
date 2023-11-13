@@ -28,18 +28,13 @@ export const Web3Provider = ({ children }) => {
   // Misc
   const router = useRouter();
   const nftPrice = ethers.parseEther("5");
-  const [isContextInitialized, setIsContextInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [provider, setProvider] = useState(null);
-  const [listedAccounts, setListedAccounts] = useState([]);
-  const [constitution, setConstitution] = useState([]);
 
   // User
   const [account, setAccount] = useState(null);
-  const [isRegistered, setIsRegistered] = useState(null);
-  const [username, setUsername] = useState(null);
-  const [displayPicture, setDisplayPicture] = useState(null);
-  const [tokenOwned, setTokenOwned] = useState(null);
-  const [delegate, setDelegate] = useState(null);
+  const [ownsSpeedburn, setOwnsSpeedburn] = useState(null);
+  const [user, setUser] = useState(null);
 
   // Contracts
   const [marketplaceContract, setMarketplaceContract] = useState(null);
@@ -72,34 +67,34 @@ export const Web3Provider = ({ children }) => {
         router.push("/");
       });
 
-      setIsContextInitialized(true);
+      setIsInitialized(true);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    if (isContextInitialized) {
+    if (isInitialized) {
       signIn();
     } else {
       initializeContext();
     }
-  }, [isContextInitialized]);
+  }, [isInitialized, account]); // setAccount from listener calls signIn again
 
   const getCurrentBlock = async () => {
-    if (!isContextInitialized) return;
+    if (!isInitialized) return;
     return await provider.getBlockNumber();
   };
 
   const signIn = async () => {
     let success = false;
-    if (!isContextInitialized) return success;
+    if (!isInitialized) return success;
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       setAccount(accounts[0]);
       const balance = await speedburnContract.balanceOf(accounts[0]);
-      const isRegistered = balance == 1
-      setIsRegistered(isRegistered);
+      const ownsSpeedburn = balance == 1
+      setOwnsSpeedburn(ownsSpeedburn);
 
       // Fetch user from MongoDB
       const response = await fetch(`/api/users/${accounts[0]}`, {
@@ -107,16 +102,9 @@ export const Web3Provider = ({ children }) => {
       });
       const result = await response.json();
       if (result) {
-        setUsername(result.username);
-        setDisplayPicture(result.image);
+        setUser(result);
       }
       success = true;
-
-      if (!isRegistered) return success;
-      const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(accounts[0], 0);
-      setTokenOwned(tokenOwned);
-      const delegate = await speedburnContract.delegates(accounts[0]);
-      setDelegate(delegate);
     } catch (error) {
       console.error(error);
     }
@@ -125,22 +113,49 @@ export const Web3Provider = ({ children }) => {
 
   const signOut = () => {
     setAccount(null);
-    setIsRegistered(false);
-    setUsername("");
-    setDisplayPicture("");
+    setOwnsSpeedburn(false);
+    setUser(null);
   };
+
+  const getTokensOwned = async (address) => {
+    let tokensOwned = [];
+    if (!isInitialized) return tokensOwned;
+    try {
+      const balance = await speedburnContract.balanceOf(address);
+      for (let i = 0; i < balance; i++) {
+        const tokenOwned = await speedburnContract.tokenOfOwnerByIndex(address, i);
+        tokensOwned.push(tokenOwned)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    return tokensOwned;
+  }
+
+  const getAccountDelegate = async (address) => {
+    let delegate;
+    if (!isInitialized) return delegate;
+    try {
+      delegate = await speedburnContract.delegates(address);
+      console.log(delegate);
+    } catch (error) {
+      console.error(error);
+    }
+    return delegate;
+  }
+
 
   const purchaseNFT = async (id) => {
     let success = false;
     // TODO: Add null check for id
-    if (!isContextInitialized) return success;
+    if (!isInitialized) return success;
     const signer = await provider.getSigner();
     try {
       const transaction = await marketplaceContract.connect(signer).purchase(id, { value: nftPrice });
       await transaction.wait();
       // FIXME: Might not work in live blockchain
       const balance = await speedburnContract.balanceOf(account);
-      setIsRegistered(balance == 1);
+      setOwnsSpeedburn(balance == 1);
       const newListings = await retrieveListings();
       if (!newListings) console.error("Retrieve listings unsuccessful!");
       success = true;
@@ -152,7 +167,7 @@ export const Web3Provider = ({ children }) => {
 
   const listNFT = async () => {
     let success = false;
-    if (!isContextInitialized) return success;
+    if (!isInitialized) return success;
     const signer = await provider.getSigner();
     const tokenId = await speedburnContract.tokenOfOwnerByIndex(account, 0);
     try {
@@ -168,7 +183,7 @@ export const Web3Provider = ({ children }) => {
       await transaction.wait();
       console.log("NFT Listed!");
 
-      setIsRegistered(false);
+      setOwnsSpeedburn(false);
       const newListings = await retrieveListings();
       if (!newListings) console.error("Retrieve listings unsuccessful!");
       success = true;
@@ -179,27 +194,24 @@ export const Web3Provider = ({ children }) => {
   };
 
   const retrieveListings = async () => {
-    let success = false;
-    if (!isContextInitialized) return success;
+    let listings = [];
+    if (!isInitialized) return listings;
     try {
-      setListedAccounts([]);
-      const totalAccountNFTs = await speedburnContract.totalSupply();
-      for (let i = 0; i < totalAccountNFTs; i++) {
+      const speedburnSupply = await speedburnContract.totalSupply();
+      for (let i = 0; i < speedburnSupply; i++) {
         if (await marketplaceContract.isListed(i)) {
-          setListedAccounts((prevAccounts) => [...prevAccounts, i]);
+          listings.push(i)
         }
       }
-      success = true;
     } catch (error) {
       console.error(error);
     }
-    return success;
+    return listings;
   };
 
   const retrieveConstitution = async () => {
-    let success = false;
-    if (!isContextInitialized) return success;
     const constitution = [];
+    if (!isInitialized) return constitution;
     try {
       const totalClauses = await speedburnContract.nextAmendmentId();
       for (let i = 0; i < totalClauses; i++) {
@@ -207,17 +219,15 @@ export const Web3Provider = ({ children }) => {
         if (!clause[1]) continue;
         constitution.push(clause);
       }
-      setConstitution(constitution);
-      success = true;
     } catch (error) {
       console.error(error);
     }
-    return success;
+    return constitution;
   };
 
   const proposeAmendment = async (amendment) => {
     let success = false;
-    if (!isContextInitialized || !amendment) return success;
+    if (!isInitialized || !amendment) return success;
     try {
       // Create proposal
       const signer = await provider.getSigner();
@@ -233,7 +243,7 @@ export const Web3Provider = ({ children }) => {
         voteEnd: `${receipt.logs[0].args.voteEnd}`,
         description: receipt.logs[0].args.description,
       };
-      await fetch("/api/proposal/create", {
+      await fetch("/api/colosseum/proposals/create", {
         method: "POST",
         body: JSON.stringify(proposal),
       });
@@ -246,12 +256,13 @@ export const Web3Provider = ({ children }) => {
 
   const retrieveProposals = async () => {
     let proposals;
-    if (!isContextInitialized) return proposals;
+    if (!isInitialized) return proposals;
     try {
       const currentBlock = await provider.getBlockNumber();
-      const response = await fetch(`/api/proposal?block_number=${currentBlock}`, {
+      const response = await fetch(`/api/colosseum/proposals?block_number=${currentBlock}`, {
         method: "GET",
       });
+      console.log(response);
       proposals = await response.json();
     } catch (error) {
       console.error(error);
@@ -261,7 +272,7 @@ export const Web3Provider = ({ children }) => {
 
   const getProposalState = async (proposalId) => {
     let proposalState;
-    if (!isContextInitialized || !proposalId) return;
+    if (!isInitialized || !proposalId) return;
     try {
       proposalState = await colosseumContract.state(proposalId);
     } catch (error) {
@@ -273,12 +284,11 @@ export const Web3Provider = ({ children }) => {
   const castVote = async (proposalId, support) => {
     let success = false;
     // TODO: Add null check for support
-    if (!isContextInitialized || !proposalId) return success;
+    if (!isInitialized || !proposalId) return success;
     try {
       const signer = await provider.getSigner();
       const transaction = await colosseumContract.connect(signer).castVote(proposalId, support);
       const receipt = await transaction.wait();
-      console.log(receipt.logs[0].args);
       success = true;
     } catch (error) {
       console.error(error);
@@ -287,7 +297,7 @@ export const Web3Provider = ({ children }) => {
   };
 
   const getProposalVotes = async (proposalId) => {
-    if (!isContextInitialized || !proposalId) return;
+    if (!isInitialized || !proposalId) return;
     let votes;
     try {
       votes = await colosseumContract.proposalVotes(proposalId);
@@ -299,7 +309,7 @@ export const Web3Provider = ({ children }) => {
 
   const setAccountDelegate = async () => {
     let success = false;
-    if (!isContextInitialized || !account) return success;
+    if (!isInitialized || !account) return success;
     try {
       const signer = await provider.getSigner();
       await speedburnContract.connect(signer).delegate(account);
@@ -314,7 +324,7 @@ export const Web3Provider = ({ children }) => {
 
   const queueProposal = async (amendment) => {
     let success = false
-    if (!isContextInitialized || !amendment) return success;
+    if (!isInitialized || !amendment) return success;
     try {
       const signer = await provider.getSigner()
       const calldata = speedburnContract.interface.encodeFunctionData("amendConstitution", [amendment]);
@@ -330,7 +340,7 @@ export const Web3Provider = ({ children }) => {
 
   const executeProposal = async (amendment) => {
     let success = false
-    if (!isContextInitialized || !amendment) return success;
+    if (!isInitialized || !amendment) return success;
     try {
       const signer = await provider.getSigner()
       const calldata = speedburnContract.interface.encodeFunctionData("amendConstitution", [amendment]);
@@ -343,22 +353,19 @@ export const Web3Provider = ({ children }) => {
     }
     return success
   }
-  
+
   return (
     <Web3Context.Provider
       value={{
-        isContextInitialized,
+        isInitialized,
         account,
-        isRegistered,
-        username,
-        displayPicture,
-        listedAccounts,
-        tokenOwned,
-        constitution,
-        delegate,
+        ownsSpeedburn,
+        user,
         getCurrentBlock,
         signIn,
         signOut,
+        getTokensOwned,
+        getAccountDelegate,
         purchaseNFT,
         listNFT,
         retrieveListings,

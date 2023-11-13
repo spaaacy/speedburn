@@ -33,6 +33,7 @@ const EditProfile = ({
           <p>
             <span className="font-bold">{`Current delegated address: `}</span>
             {`${delegate}`}
+            <span className="font-bold">{account == delegate.toLowerCase() ? " (YOU)" : ""}</span>
           </p>
         )}
       </div>

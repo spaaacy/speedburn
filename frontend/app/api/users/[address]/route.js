@@ -1,9 +1,9 @@
 import User from "@/models/user";
 import { connectToDb } from "@/util/database";
 
-export const GET = async (req, { params }) => {
+export const GET = async (req, res) => {
   try {
-    const { address } = params;
+    const { address } = res.params;
     await connectToDb();
     const user = await User.findOne({ address });
     return new Response(JSON.stringify(user), { status: 200 });

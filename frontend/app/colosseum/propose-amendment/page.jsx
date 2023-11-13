@@ -1,15 +1,18 @@
 "use client";
 
 import { Web3Context } from "@/context/Web3Context";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
-const page = () => {
-  const { isRegistered, proposeAmendment } = useContext(Web3Context);
+const ProposeAmendment = () => {
+  const router = useRouter();
+  const { ownsSpeedburn, proposeAmendment } = useContext(Web3Context);
   const [body, setBody] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await proposeAmendment(body);
+    router.push("/colosseum")
     if (!success) {
       console.log("Handle submit unsuccessful!");
     }
@@ -17,7 +20,7 @@ const page = () => {
 
   return (
     <main className="max-width w-full flex flex-col gap-3 justify-start items-center flex-auto">
-      {isRegistered ? (
+      {ownsSpeedburn ? (
         <>
           <h1 className="text-3xl font-bold">Propose Amendment</h1>
 
@@ -41,4 +44,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ProposeAmendment;

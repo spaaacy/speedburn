@@ -11,7 +11,7 @@ export const GET = async (req, res) => {
     const blockNumber = req.nextUrl.searchParams.get("block_number");
     
     await connectToDb();
-    console.log(parseInt(blockNumber)+1);
+    (parseInt(blockNumber)+1);
     const activeProposals = await Proposal.where('voteEnd').gt(parseInt(blockNumber)-1).populate("author");
     const pastProposals = await Proposal.where('voteEnd').lte(parseInt(blockNumber)-1).populate("author");
     return new Response(JSON.stringify({activeProposals, pastProposals}), { status: 200 });

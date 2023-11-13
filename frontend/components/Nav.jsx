@@ -8,7 +8,7 @@ import { formatAddress } from "@/util/helpers";
 import { useRouter, usePathname } from "next/navigation";
 
 const Nav = () => {
-  const { signIn, signOut, account, username, displayPicture, isRegistered } = useContext(Web3Context);
+  const { signIn, signOut, account, user } = useContext(Web3Context);
   const [showDropdown, setShowDropdown] = useState(false);
   let dropdownRef = useRef();
 
@@ -27,35 +27,28 @@ const Nav = () => {
 
   if (usePathname() !== "/")
     return (
-      <nav className={"sticky top-0 z-10 bg-transparent"}>
-        <div className="flex justify-center items-center py-6 max-width max-xl:px-4">
+      <nav className={"sticky top-0 z-10 bg-white"}>
+        <div className="flex justify-center items-center py-6 px-10 max-xl:px-4">
           <div className="flex flex-auto justify-start items-end gap-6">
-            <Link href={isRegistered ? "/feed" : "/"} >
+            <Link href="/" >
               <h1 className="text-fire font-bold text-3xl mr-4">SpeedBurn</h1>
             </Link>
-            <Link href="/marketplace" className="font-bold text-xl text-black hover:text-fire">
-              Marketplace
+            <Link href="/communities" className="font-bold text-xl text-black hover:text-fire">
+              Communities
             </Link>
             <Link href="/colosseum" className="font-bold text-xl text-black hover:text-fire">
               Colosseum
             </Link>
-            <Link href="/constitution" className="font-bold text-xl text-black hover:text-fire">
-              Constitution
-            </Link>
           </div>
           {account ? (
-            isRegistered ? (
-              <NavAccount
-                menuRef={dropdownRef}
-                showDropdown={showDropdown}
-                setShowDropdown={setShowDropdown}
-                signOut={signOut}
-                username={username}
-                displayPicture={displayPicture}
-              />
-            ) : (
-              <p className="italic font-semibold">{`Welcome, ${formatAddress(account)}`}</p>
-            )
+            user &&
+            <NavAccount
+              menuRef={dropdownRef}
+              showDropdown={showDropdown}
+              setShowDropdown={setShowDropdown}
+              signOut={signOut}
+              user={user}
+            />
           ) : (
             <button className="action-button" type="button" onClick={() => signIn()}>
               Sign In
@@ -66,7 +59,7 @@ const Nav = () => {
     );
 };
 
-const NavAccount = ({ menuRef, signOut, showDropdown, setShowDropdown, username, displayPicture }) => {
+const NavAccount = ({ menuRef, signOut, showDropdown, setShowDropdown, user }) => {
   const router = useRouter();
   const handleSignOut = () => {
     signOut();
@@ -76,9 +69,9 @@ const NavAccount = ({ menuRef, signOut, showDropdown, setShowDropdown, username,
   return (
     <div className="relative flex justify-end items-center gap-3">
       <p className="font-semibold text-black hover:cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
-        {username}
+        {user.username}
       </p>
-      <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={displayPicture} />
+      <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={user.image} />
       <div
         ref={menuRef}
         className={`absolute top-14 bg-white shadow-xl rounded-xl p-4 ${showDropdown ? "block" : "hidden"}`}

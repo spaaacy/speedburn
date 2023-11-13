@@ -1,6 +1,6 @@
 import {Schema, models, model} from "mongoose";
 
-const UserSchema = Schema({
+export const UserSchema = Schema({
   address: {
     type: String,
     unique: [true, "Address already registered"],

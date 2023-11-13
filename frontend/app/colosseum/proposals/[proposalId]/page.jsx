@@ -2,12 +2,13 @@
 
 import { ProposalState, VoteType, Web3Context } from "@/context/Web3Context";
 import { calculateTimeLeft, formatAddress } from "@/util/helpers";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { useContext, useEffect, useState } from "react";
 
 const ProposalDetails = () => {
-  const { isContextInitialized, getCurrentBlock, getProposalState, castVote, getProposalVotes, queueProposal, executeProposal } =
+  const router = useRouter();
+  const { isInitialized, getCurrentBlock, getProposalState, castVote, getProposalVotes, queueProposal, executeProposal } =
     useContext(Web3Context);
   const [proposal, setProposal] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -16,7 +17,7 @@ const ProposalDetails = () => {
   const { proposalId } = useParams();
 
   const fetchProposal = async () => {
-    const response = await fetch(`/api/proposal/${proposalId}`, {
+    const response = await fetch(`/api/colosseum/proposals/${proposalId}`, {
       method: "GET",
     });
     const proposal = await response.json();
@@ -24,7 +25,10 @@ const ProposalDetails = () => {
     const timeLeft = calculateTimeLeft(await getCurrentBlock(), proposal.voteEnd);
     setTimeLeft(timeLeft);
     const proposalState = await getProposalState(proposal.proposalId);
-    if (!proposalState) {
+    console.log(proposalState);
+    // FIXME: Null check here
+    // if (!proposalState) {
+    if (false) {
       console.error("Get proposal state unsuccessful");
     } else {
       setProposalState(parseInt(proposalState));
@@ -38,9 +42,9 @@ const ProposalDetails = () => {
   };
 
   useEffect(() => {
-    if (!isContextInitialized) return;
+    if (!isInitialized) return;
     fetchProposal();
-  }, [isContextInitialized]);
+  }, [isInitialized]);
 
   const handleAccept = async () => {
     const success = await castVote(proposal.proposalId, VoteType.For);
@@ -76,7 +80,7 @@ const ProposalDetails = () => {
 
    const handleExecute = async () => {
     const success = await executeProposal(proposal.description);
-    window.location.reload();
+    router.push("/colosseum")
     if (!success) {
       console.error("Handle execute unsuccessful!");
     }
@@ -97,7 +101,9 @@ const ProposalDetails = () => {
               {`${proposal.description}`}
             </p>
             <div className="flex items-center gap-3">
+              {/* FIXME: Null check here */}
               {proposalState && (
+              // {true && (
                 <p className={"font-bold"}>
                   {`State: `}
                   <span className={`${proposalState === 1 ? "text-green-600" : "text-black"}`}>
@@ -126,6 +132,8 @@ const ProposalDetails = () => {
                 </div>
               )}
               <div className="flex items-center gap-2">
+
+                {/* TODO: Check if address already voted */}
                 {
                   proposalState === 1 &&
                   <>
@@ -162,8 +170,7 @@ const ProposalDetails = () => {
                     Queue
 
                   </button>}
-                {/* {proposalState === 5 && */}
-                {5 === 5 &&
+                {proposalState === 5 &&
                   <button
                     className="w-28 action-button-dark hover:bg-fire hover:text-white"
                     onClick={handleExecute}
