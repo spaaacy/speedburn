@@ -2,7 +2,7 @@
 
 import CreatePost from "@/components/CreatePost";
 import Loader from "@/components/Loader";
-import Post from "@/components/Post";
+import PostItem from "@/components/PostItem";
 import { Web3Context } from "@/context/Web3Context";
 import { formatAddress } from "@/util/helpers";
 import { useParams } from "next/navigation";
@@ -79,7 +79,7 @@ const CommunityHome = () => {
                     {/* TODO: Display if registered */}
                     <CreatePost communityId={community._id} />
                     {posts && posts.map((post, i) => (
-                      <Post
+                      <PostItem
                         key={i}
                         post={{
                           title: post.title,

@@ -5,7 +5,7 @@ import { formatAddress, formatProposalid } from "@/util/helpers";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 
-const Colosseum = () => {
+const Proposals = () => {
   const [activeProposals, setActiveProposals] = useState([]);
   const [pastProposals, setPastProposals] = useState([]);
   const { isInitialized, retrieveProposals } = useContext(Web3Context);
@@ -62,4 +62,4 @@ const ProposalItem = ({ proposal }) => {
   );
 };
 
-export default Colosseum;
+export default Proposals;

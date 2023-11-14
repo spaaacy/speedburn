@@ -12,7 +12,6 @@ const Footer = () => {
   })
 
 
-  // FIXME: Null error with window
   return (
     <footer className={`max-sm:text-xs ${pathname === "/" ? "absolute bottom-0" : "relative"} mt-auto w-full flex justify-center items-center p-2`}>
       <p className={`font-light ${usePathname() === "/" ? "text-white" : "text-black"}`}>Copyright © 2023 SpeedBurn. All Rights Reserved.</p>

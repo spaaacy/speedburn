@@ -37,7 +37,7 @@ const Communities = () => {
                     <div className="mt-4 grid grid-cols-3 gap-4">
                         {
                             communities.map((community, i) =>
-                                <CommunityCard community={community} />
+                                <CommunityItem community={community} />
                             )
                         }
                     </div>
@@ -47,7 +47,7 @@ const Communities = () => {
     )
 }
 
-const CommunityCard = ({ community }) => (
+const CommunityItem = ({ community }) => (
     <Link href={`/communities/${community.address}`} className="text-white transition bg-fire hover:bg-firedark shadow-xl rounded-xl p-4 flex justify-center items-center flex-col">
         <p className="font-semibold">
             {`${community.name} (${community.symbol})`}

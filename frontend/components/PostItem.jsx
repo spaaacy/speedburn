@@ -1,7 +1,7 @@
 import { formatDate } from "@/util/helpers";
 import UserImage from "./UserImage";
 
-const Post = ({ post }) => {
+const PostItem = ({ post }) => {
   const { title, body, timestamp, username, image } = post;
   return (
     <div className="bg-pale flex flex-col rounded px-6 py-4 gap-4 mb-4">
@@ -16,4 +16,4 @@ const Post = ({ post }) => {
   );
 };
 
-export default Post;
+export default PostItem;
