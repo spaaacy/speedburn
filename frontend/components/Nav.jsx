@@ -46,14 +46,16 @@ const Nav = () => {
             </Link>
           </div>
           {account ? (
-            user &&
+            user ?
             <NavAccount
               menuRef={dropdownRef}
               showDropdown={showDropdown}
               setShowDropdown={setShowDropdown}
               signOut={signOut}
               user={user}
-            />
+            /> : 
+            // TODO: Add jazzicon here
+            <p>Welcome, <span className="font-semibold">{formatAddress(account)}</span></p>
           ) : (
             <button className="action-button" type="button" onClick={handleSignIn}>
               Sign In

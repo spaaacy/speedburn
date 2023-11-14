@@ -75,7 +75,7 @@ const ProposalDetails = () => {
    const handleExecute = async () => {
     const receipt = await executeProposal(proposal.description);
     router.push("/colosseum")
-    if (receipt = null) console.error("Handle execute unsuccessful!");
+    if (receipt == null) console.error("Handle execute unsuccessful!");
    }
 
   return (
@@ -93,9 +93,7 @@ const ProposalDetails = () => {
               {`${proposal.description}`}
             </p>
             <div className="flex items-center gap-3">
-              {/* FIXME: Null check here */}
-              {proposalState && (
-              // {true && (
+              {proposalState != null && (
                 <p className={"font-bold"}>
                   {`State: `}
                   <span className={`${proposalState === 1 ? "text-green-600" : "text-black"}`}>

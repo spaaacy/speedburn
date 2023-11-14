@@ -20,6 +20,10 @@
     a {
       @apply font-roboto
     }
+
+    button {
+      @apply font-roboto
+    }
     
   }
 

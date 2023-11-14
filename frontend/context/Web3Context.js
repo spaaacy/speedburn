@@ -41,7 +41,6 @@ export const Web3Provider = ({ children }) => {
   const [speedburnContract, setSpeedBurnContract] = useState(null);
   const [colosseumContract, setColosseumContract] = useState(null);
 
-  // TODO: Add loading start for sign in
   const initializeContext = async () => {
     let provider;
     try {
@@ -159,6 +158,7 @@ export const Web3Provider = ({ children }) => {
       const signer = await provider.getSigner();
       const transaction = await marketplaceContract.connect(signer).purchase(id, { value: nftPrice });
       receipt = await transaction.wait();
+      console.log(receipt);
     } catch (error) {
       console.error(error);
     }

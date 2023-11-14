@@ -1,15 +1,31 @@
+'use client'
+
+import { Web3Context } from "@/context/Web3Context";
+import { useContext, useEffect, useState } from "react";
+
 const EditProfile = ({
   headerMessage,
   confirmMessage,
   handleSubmit,
-  setUsernameField,
-  setImageField,
-  delegate,
-  setAccountDelegate,
-  account
 }) => {
+  const [usernameField, setUsernameField] = useState("");
+  const [imageField, setImageField] = useState("");
+  const [delegate, setDelegate] = useState(null)
+  const { isInitialized, setAccountDelegate, getAccountDelegate, account } = useContext(Web3Context);
+
+  const fetchAccountDelegate = async () => {
+    const delegate = await getAccountDelegate(account);
+    setDelegate(delegate)
+    if (delegate == null) console.error("Fetch account delegate unsuccessful!");
+  }
+
+  useEffect(() => {
+    if (!isInitialized || !account) return;
+    fetchAccountDelegate();
+  }, [isInitialized, account]);
+
   return (
-    <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col w-[760px]">
+    <form onSubmit={(e) => handleSubmit(e, usernameField, imageField)} className="flex flex-col w-[760px]">
       {/* TODO: Add form validation */}
       <div className="flex justify-center items-start flex-col gap-4">
         <h2 className="text-3xl font-bold">{headerMessage}</h2>

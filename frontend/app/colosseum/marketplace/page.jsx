@@ -14,34 +14,22 @@ const Marketplace = () => {
     purchaseNFT,
     listNFT,
     ownsSpeedburn,
-    getAccountDelegate,
-    setAccountDelegate,
   } = useContext(Web3Context);
 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([])
   const [currentState, setCurrentState] = useState(MarketplaceState.Purchase);
-  const [usernameField, setUsernameField] = useState("");
-  const [imageField, setImageField] = useState("");
-  const [delegate, setDelegate] = useState(null)
 
   useEffect(() => {
     if (!isInitialized) return;
     fetchListings()
-    fetchAccountDelegate();
   }, [isInitialized]);
 
   const fetchListings = async () => {
     const listings = await retrieveListings();
     setListings(listings)
     if (listings == null) console.error("Fetch listings unsuccessful");
-  }
-
-  const fetchAccountDelegate = async () => {
-    const delegate = await getAccountDelegate();
-    setDelegate(delegate)
-    if (delegate == null) console.error("Fetch account delegate unsuccessful!");
   }
 
   const submitPurchase = async (id) => {
@@ -82,7 +70,7 @@ const Marketplace = () => {
     }
   };
 
-  const submitDetails = async (e) => {
+  const submitDetails = async (e, username, image) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -90,8 +78,8 @@ const Marketplace = () => {
         method: "POST",
         body: JSON.stringify({
           address: account,
-          username: usernameField,
-          image: imageField,
+          username,
+          image,
         }),
       });
       router.push("/colosseum");
@@ -124,12 +112,7 @@ const Marketplace = () => {
             </>
           ) : currentState === MarketplaceState.Details ? (
             <EditProfile
-              account={account}
-              setAccountDelegate={setAccountDelegate}
-              delegate={delegate}
               headerMessage={"Setup your account"}
-              setImageField={setImageField}
-              setUsernameField={setUsernameField}
               confirmMessage="Confirm"
               handleSubmit={submitDetails}
             />

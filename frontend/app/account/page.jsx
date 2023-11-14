@@ -2,27 +2,19 @@
 
 import EditProfile from "@/components/EditProfile";
 import { Web3Context } from "@/context/Web3Context";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 
 const Account = () => {
-  const [usernameField, setUsernameField] = useState("");
-  const [imageField, setImageField] = useState("");
-  const [delegate, setDelegate] = useState(null);
-  const { isInitialized, getAccountDelegate, setAccountDelegate, account } = useContext(Web3Context);
+  const { account, user } = useContext(Web3Context);
 
-  const handleDelegate = async () => {
-    await setAccountDelegate();
-    window.location.reload();
-  }
-  
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, username, image) => {
     e.preventDefault();
     try {
       await fetch(`/api/users/${account}/edit-details`, {
         method: "PATCH",
         body: JSON.stringify({
-          username: usernameField,
-          image: imageField,
+          username,
+          image,
         }),
       });
     } catch (error) {
@@ -32,30 +24,15 @@ const Account = () => {
     }
   };
 
-  const fetchAccountDelegate = async () => {
-    const delegate = await getAccountDelegate(account);
-    setDelegate(delegate)
-    if (delegate == null) console.error("Fetch account delegate unsuccessful!");
-  }
-  
-  useEffect(() => {
-    if (!isInitialized || !account) return;
-    fetchAccountDelegate();
-  }, [isInitialized, account])
-  
-  // TODO: Check if user is registered; Create error component for unregistered users
   return (
     <main className="w-full max-width flex justify-center">
-      <EditProfile
-      account={account}
-        delegate={delegate}
-        setAccountDelegate={handleDelegate}
+      {false ? <EditProfile
+        // {user ? <EditProfile
         headerMessage={"Change account details"}
         confirmMessage={"Save changes"}
         handleSubmit={handleSubmit}
-        setUsernameField={setUsernameField}
-        setImageField={setImageField}
-      />
+      /> :
+        <h1 className="font-semibold">Sign in to view account 😷</h1>}
     </main>
   );
 };

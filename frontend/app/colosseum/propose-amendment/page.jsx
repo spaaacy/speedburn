@@ -18,26 +18,19 @@ const ProposeAmendment = () => {
 
   return (
     <main className="max-width w-full flex flex-col gap-3 justify-start items-center flex-auto">
-      {ownsSpeedburn ? (
-        <>
-          <h1 className="text-3xl font-bold">Propose Amendment</h1>
+      <h1 className="text-3xl font-bold">Propose Amendment</h1>
 
-          <form onSubmit={(e) => handleSubmit(e)} className="flex justify-start items-center w-[75%] mt-4">
-            <input
-              className="p-3 rounded-lg border-jet focus:outline-none focus:border-fire border-2 w-full"
-              type="text"
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Amendment"
-            />
-            <button className="action-button-dark ml-4" type="submit">
-              Submit
-            </button>
-          </form>
-        </>
-      ) : (
-        // TODO: Use unregistered component here
-        <></>
-      )}
+      <form onSubmit={(e) => handleSubmit(e)} className="flex justify-start items-center w-[75%] mt-4">
+        <input
+          className="p-3 rounded-lg border-jet focus:outline-none focus:border-fire border-2 w-full"
+          type="text"
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="Amendment"
+        />
+        <button className="action-button-dark ml-4" type="submit">
+          Submit
+        </button>
+      </form>
     </main>
   );
 };
