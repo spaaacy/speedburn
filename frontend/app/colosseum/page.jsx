@@ -17,7 +17,7 @@ const Constitution = () => {
     const constitution = await retrieveConstitution();
     console.log(constitution);
     setConstitution(constitution)
-    if (!constitution) console.error("Retrieve constitution unsuccessful!");
+    if (constitution == null) console.error("Retrieve constitution unsuccessful!");
   }
 
   return (

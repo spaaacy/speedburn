@@ -17,6 +17,7 @@ const ProposalDetails = () => {
   const { proposalId } = useParams();
 
   const fetchProposal = async () => {
+    // Fetch proposal metadata
     const response = await fetch(`/api/colosseum/proposals/${proposalId}`, {
       method: "GET",
     });
@@ -24,17 +25,18 @@ const ProposalDetails = () => {
     setProposal(proposal);
     const timeLeft = calculateTimeLeft(await getCurrentBlock(), proposal.voteEnd);
     setTimeLeft(timeLeft);
+    
+    // Fetch state
     const proposalState = await getProposalState(proposal.proposalId);
-    console.log(proposalState);
-    // FIXME: Null check here
-    // if (!proposalState) {
-    if (false) {
+    if (proposalState == null) {
       console.error("Get proposal state unsuccessful");
     } else {
       setProposalState(parseInt(proposalState));
     }
+
+    // Fetch votes
     const proposalVotes = await getProposalVotes(proposal.proposalId);
-    if (!proposalId) {
+    if (proposalId == null) {
       console.error("Get proposal votes unsuccessful!");
     } else {
       setProposalVotes(proposalVotes);
@@ -47,43 +49,33 @@ const ProposalDetails = () => {
   }, [isInitialized]);
 
   const handleAccept = async () => {
-    const success = await castVote(proposal.proposalId, VoteType.For);
+    const receipt = await castVote(proposal.proposalId, VoteType.For);
     window.location.reload();
-    if (!success) {
-      console.error("Handle accept unsuccessful!");
-    }
+    if (receipt == null) console.error("Handle accept unsuccessful!");
   };
 
   const handleAgainst = async () => {
-    const success = await castVote(proposal.proposalId, VoteType.Against);
+    const receipt = await castVote(proposal.proposalId, VoteType.Against);
     window.location.reload();
-    if (!success) {
-      console.error("Handle against unsuccessful!");
-    }
+    if (receipt == null) console.error("Handle against unsuccessful!");
   };
 
   const handleAbstain = async () => {
-    const success = await castVote(proposal.proposalId, VoteType.Abstain);
+    const receipt = await castVote(proposal.proposalId, VoteType.Abstain);
     window.location.reload();
-    if (!success) {
-      console.error("Handle abstain unsuccessful!");
-    }
+    if (receipt == null) console.error("Handle abstain unsuccessful!");
   };
 
   const handleQueue = async () => {
-    const success = await queueProposal(proposal.description);
+    const receipt = await queueProposal(proposal.description);
     window.location.reload();
-    if (!success) {
-      console.error("Handle queue unsuccessful!");
-    }
+    if (receipt == null) console.error("Handle queue unsuccessful!");
    }
 
    const handleExecute = async () => {
-    const success = await executeProposal(proposal.description);
+    const receipt = await executeProposal(proposal.description);
     router.push("/colosseum")
-    if (!success) {
-      console.error("Handle execute unsuccessful!");
-    }
+    if (receipt = null) console.error("Handle execute unsuccessful!");
    }
 
   return (

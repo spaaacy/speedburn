@@ -35,23 +35,19 @@ const Marketplace = () => {
   const fetchListings = async () => {
     const listings = await retrieveListings();
     setListings(listings)
-    if (!listings) {
-      console.error("Fetch listings unsuccessful");
-    }
+    if (listings == null) console.error("Fetch listings unsuccessful");
   }
 
   const fetchAccountDelegate = async () => {
     const delegate = await getAccountDelegate();
     setDelegate(delegate)
-    if (!delegate) {
-      console.error("Fetch account delegate unsuccessful!");
-    }
+    if (delegate == null) console.error("Fetch account delegate unsuccessful!");
   }
-  
+
   const submitPurchase = async (id) => {
     setLoading(true);
-    const success = await purchaseNFT(id);
-    if (success) {
+    const receipt = await purchaseNFT(id);
+    if (receipt != null) {
       try {
         // Check if account exists
         const response = await fetch(`/api/users/${account}`, {
@@ -63,6 +59,7 @@ const Marketplace = () => {
         } else {
           router.push("/colosseum");
         }
+
       } catch (error) {
         console.error(error);
       } finally {

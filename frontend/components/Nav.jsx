@@ -25,6 +25,11 @@ const Nav = () => {
     };
   });
 
+  const handleSignIn = async () => {
+    const success = await signIn();
+    if (!success) console.error("Handle sign in unsuccessful");
+  }
+
   if (usePathname() !== "/")
     return (
       <nav className={"sticky top-0 z-10 bg-white"}>
@@ -50,7 +55,7 @@ const Nav = () => {
               user={user}
             />
           ) : (
-            <button className="action-button" type="button" onClick={() => signIn()}>
+            <button className="action-button" type="button" onClick={handleSignIn}>
               Sign In
             </button>
           )}

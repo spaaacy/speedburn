@@ -11,11 +11,9 @@ const ProposeAmendment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await proposeAmendment(body);
+    const receipt = await proposeAmendment(body);
+    if (receipt == null) console.log("Handle submit unsuccessful!");
     router.push("/colosseum")
-    if (!success) {
-      console.log("Handle submit unsuccessful!");
-    }
   };
 
   return (

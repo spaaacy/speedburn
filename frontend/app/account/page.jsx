@@ -35,9 +35,7 @@ const Account = () => {
   const fetchAccountDelegate = async () => {
     const delegate = await getAccountDelegate(account);
     setDelegate(delegate)
-    if (!delegate) {
-      console.error("Fetch account delegate unsuccessful!");
-    }
+    if (delegate == null) console.error("Fetch account delegate unsuccessful!");
   }
   
   useEffect(() => {
