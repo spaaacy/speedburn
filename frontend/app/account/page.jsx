@@ -26,8 +26,7 @@ const Account = () => {
 
   return (
     <main className="w-full max-width flex justify-center">
-      {false ? <EditProfile
-        // {user ? <EditProfile
+      {user ? <EditProfile
         headerMessage={"Change account details"}
         confirmMessage={"Save changes"}
         handleSubmit={handleSubmit}

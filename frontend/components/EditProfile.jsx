@@ -26,7 +26,6 @@ const EditProfile = ({
 
   return (
     <form onSubmit={(e) => handleSubmit(e, usernameField, imageField)} className="flex flex-col w-[760px]">
-      {/* TODO: Add form validation */}
       <div className="flex justify-center items-start flex-col gap-4">
         <h2 className="text-3xl font-bold">{headerMessage}</h2>
         <div className="mt-4">

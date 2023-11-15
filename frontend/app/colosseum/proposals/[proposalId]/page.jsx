@@ -108,7 +108,7 @@ const ProposalDetails = () => {
                   <span className="italic">{` (${timeLeft.blocks} blocks)`}</span>
                 </p>
               )}
-              <a href={`/user/${proposal.proposer}`} className="ml-auto">
+              <a href={`/users/${proposal.proposer}`} className="ml-auto">
                 {`Proposer: ${proposal.author.username} `}
                 <span className="italic">{`(${formatAddress(proposal.proposer)})`}</span>
               </a>
@@ -123,7 +123,7 @@ const ProposalDetails = () => {
               )}
               <div className="flex items-center gap-2">
 
-                {/* TODO: Check if address already voted */}
+                {/* TODO: Check if address already voted, is delegated, and owns token */}
                 {
                   proposalState === 1 &&
                   <>

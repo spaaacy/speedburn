@@ -33,7 +33,9 @@ const User = () => {
         <div className="max-width w-full flex">
           {user ?
             <div className="flex mt-6">
-              <UserImage size={300} displayPicture={user.image} />
+              <div>
+                <UserImage size={300} displayPicture={user.image} />
+              </div>
               <div className="flex flex-1 flex-col gap-4 ml-8">
                 <h1 className="text-3xl font-bold text-fire mb-5">{`${user.username}'s profile`}</h1>
                 <h2 className="font-semibold text-lg">{`Address: ${user.address}`}</h2>

@@ -3,12 +3,10 @@
 import { Web3Context } from "@/context/Web3Context";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import EditProfile from "@/components/EditProfile";
 import Loader from "@/components/Loader";
 
 const Marketplace = () => {
   const {
-    account,
     isInitialized,
     retrieveListings,
     purchaseNFT,
@@ -19,7 +17,6 @@ const Marketplace = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([])
-  const [currentState, setCurrentState] = useState(MarketplaceState.Purchase);
 
   useEffect(() => {
     if (!isInitialized) return;
@@ -35,27 +32,11 @@ const Marketplace = () => {
   const submitPurchase = async (id) => {
     setLoading(true);
     const receipt = await purchaseNFT(id);
-    if (receipt != null) {
-      try {
-        // Check if account exists
-        const response = await fetch(`/api/users/${account}`, {
-          method: "GET",
-        });
-
-        if (!(await response.json())) {
-          setCurrentState(MarketplaceState.Details);
-        } else {
-          router.push("/colosseum");
-        }
-
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
+    if (receipt == null) {
       console.error("Submit purchase unsuccessful!");
       setLoading(false);
+    } else {
+      router.push('/colosseum')
     }
   };
 
@@ -70,54 +51,23 @@ const Marketplace = () => {
     }
   };
 
-  const submitDetails = async (e, username, image) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await fetch("/api/users/create", {
-        method: "POST",
-        body: JSON.stringify({
-          address: account,
-          username,
-          image,
-        }),
-      });
-      router.push("/colosseum");
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  };
-
   return (
     <main className="flex-1 flex max-width w-full">
       {loading ? (
         <Loader />
       ) : (
         <div className="flex-auto flex-col flex justify-start items-center">
-          {currentState === MarketplaceState.Purchase ? (
-            <>
-              <h1 className="text-3xl self-start font-bold">View SpeedBurns available for sale</h1>
-              <div className="grid grid-cols-6 gap-4 mt-4">
-                {listings &&
-                  listings.map((id) => (
-                    <NFTItem isRegistered={ownsSpeedburn} key={id} id={id} submitPurchase={submitPurchase} />
-                  ))}
-              </div>
-              {ownsSpeedburn && (
-                <button type="button" className="action-button-dark self-end" onClick={submitSell}>
-                  Sell account
-                </button>
-              )}
-            </>
-          ) : currentState === MarketplaceState.Details ? (
-            <EditProfile
-              headerMessage={"Setup your account"}
-              confirmMessage="Confirm"
-              handleSubmit={submitDetails}
-            />
-          ) : (
-            <></>
+          <h1 className="text-3xl self-start font-bold">View SpeedBurns available for sale</h1>
+          <div className="grid grid-cols-6 gap-4 mt-4">
+            {listings &&
+              listings.map((id) => (
+                <NFTItem isRegistered={ownsSpeedburn} key={id} id={id} submitPurchase={submitPurchase} />
+              ))}
+          </div>
+          {ownsSpeedburn && (
+            <button type="button" className="action-button-dark self-end" onClick={submitSell}>
+              Sell account
+            </button>
           )}
         </div>
       )}
@@ -132,16 +82,11 @@ const NFTItem = ({ id, submitPurchase, isRegistered }) => (
       onClick={() => submitPurchase(id)}
       disabled={isRegistered}
       type="button"
-      className="action-button bg-pale hover:text-jet mt-4 border-0"
+      className="action-button  bg-pale mt-4 border-0"
     >
       Purchase
     </button>
   </div>
 );
-
-const MarketplaceState = {
-  Purchase: 0,
-  Details: 1,
-};
 
 export default Marketplace;

@@ -47,15 +47,14 @@ const Nav = () => {
           </div>
           {account ? (
             user ?
-            <NavAccount
-              menuRef={dropdownRef}
-              showDropdown={showDropdown}
-              setShowDropdown={setShowDropdown}
-              signOut={signOut}
-              user={user}
-            /> : 
-            // TODO: Add jazzicon here
-            <p>Welcome, <span className="font-semibold">{formatAddress(account)}</span></p>
+              <NavAccount
+                menuRef={dropdownRef}
+                showDropdown={showDropdown}
+                setShowDropdown={setShowDropdown}
+                signOut={signOut}
+                user={user}
+              /> :
+              <p>Welcome, <span className="font-semibold">{formatAddress(account)}</span></p>
           ) : (
             <button className="action-button" type="button" onClick={handleSignIn}>
               Sign In
@@ -76,7 +75,7 @@ const NavAccount = ({ menuRef, signOut, showDropdown, setShowDropdown, user }) =
   return (
     <div className="relative flex justify-end items-center gap-3">
       <p className="font-semibold text-black hover:cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
-        {user.username}
+        {user.username  ? user.username : formatAddress(user.address)}
       </p>
       <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={user.image} />
       <div

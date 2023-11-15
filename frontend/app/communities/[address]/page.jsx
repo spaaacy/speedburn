@@ -3,6 +3,7 @@
 import CreatePost from "@/components/CreatePost";
 import Loader from "@/components/Loader";
 import PostItem from "@/components/PostItem";
+import UserImage from "@/components/UserImage";
 import { Web3Context } from "@/context/Web3Context";
 import { formatAddress } from "@/util/helpers";
 import { useParams } from "next/navigation";
@@ -41,7 +42,6 @@ const CommunityHome = () => {
         });
       const community = await response.json();
       setCommunity(community)
-      console.log(community);
       await fetchPosts(community._id);
     } catch (error) {
       console.error(error);
@@ -81,13 +81,8 @@ const CommunityHome = () => {
                     {posts && posts.map((post, i) => (
                       <PostItem
                         key={i}
-                        post={{
-                          title: post.title,
-                          body: post.body,
-                          timestamp: post.createdAt,
-                          username: post.author.username,
-                          image: post.author.image,
-                        }}
+                        post={post}
+                        user={post.author}
                       />
                     ))}
                   </div>
@@ -97,8 +92,9 @@ const CommunityHome = () => {
                     </h3>
                     <ul>
                       {community.members.map((member) =>
-                        <li key={member.address}>
-                          <a className="" href={`/users/${member.address}`}>{`${member.username} (${formatAddress(member.address)})`}</a>
+                        <li key={member.address} className="flex gap-2 items-center">
+                          <UserImage displayPicture={member.image} />
+                          <a className="font-semibold" href={`/users/${member.address}`}>{member.username ? `${member.username} (${formatAddress(member.address)})` : `${formatAddress(member.address)}`}</a>
                         </li>
                       )}
                     </ul>

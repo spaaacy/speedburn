@@ -109,6 +109,17 @@ export const Web3Provider = ({ children }) => {
       const result = await response.json();
       if (result) {
         setUser(result);
+      } else {
+        await fetch("/api/users/create", {
+          method: "POST",
+          body: JSON.stringify({
+            address: account,
+          }),
+        });
+        const response = await fetch(`/api/users/${accounts[0]}`, {
+          method: "GET",
+        });
+        setUser(await response.json());
       }
       success = true;
     } catch (error) {
