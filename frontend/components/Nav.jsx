@@ -1,29 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext } from "react";
 import { Web3Context } from "@/context/Web3Context";
 import UserImage from "./UserImage";
 import { formatAddress } from "@/util/helpers";
 import { useRouter, usePathname } from "next/navigation";
+import useClickout from "@/hooks/useClickout";
 
 const Nav = () => {
   const { signIn, signOut, account, user } = useContext(Web3Context);
-  const [showDropdown, setShowDropdown] = useState(false);
-  let dropdownRef = useRef();
-
-  useEffect(() => {
-    let handler = (e) => {
-      if (!dropdownRef.current) return;
-      if (!dropdownRef.current.contains(e.target)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => {
-      document.removeEventListener("mousedown", handler);
-    };
-  });
 
   const handleSignIn = async () => {
     const success = await signIn();
@@ -32,7 +18,7 @@ const Nav = () => {
 
   if (usePathname() !== "/")
     return (
-      <nav className={"sticky top-0 z-10 bg-white"}>
+      <nav className={"sticky top-0 z bg-white"}>
         <div className="flex justify-center items-center py-6 px-10 max-xl:px-4">
           <div className="flex flex-auto justify-start items-end gap-6">
             <Link href="/" >
@@ -48,9 +34,6 @@ const Nav = () => {
           {account ? (
             user ?
               <NavAccount
-                menuRef={dropdownRef}
-                showDropdown={showDropdown}
-                setShowDropdown={setShowDropdown}
                 signOut={signOut}
                 user={user}
               /> :
@@ -65,22 +48,23 @@ const Nav = () => {
     );
 };
 
-const NavAccount = ({ menuRef, signOut, showDropdown, setShowDropdown, user }) => {
+const NavAccount = ({ signOut, user }) => {
   const router = useRouter();
   const handleSignOut = () => {
     signOut();
     router.push("/")
   }
+  const { itemRef, showItem, setShowItem } = useClickout();
 
   return (
     <div className="relative flex justify-end items-center gap-3">
-      <p className="font-semibold text-black hover:cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
-        {user.username  ? user.username : formatAddress(user.address)}
+      <p className="font-semibold text-black hover:cursor-pointer" onClick={() => setShowItem(true)}>
+        {user.username ? user.username : formatAddress(user.address)}
       </p>
-      <UserImage onClick={() => setShowDropdown(!showDropdown)} displayPicture={user.image} />
+      <UserImage onClick={() => setShowItem(true)} displayPicture={user.image} />
       <div
-        ref={menuRef}
-        className={`absolute top-14 bg-white shadow-xl rounded-xl p-4 ${showDropdown ? "block" : "hidden"}`}
+        ref={itemRef}
+        className={`absolute top-14 bg-white shadow-xl rounded-xl p-4 ${showItem ? "block" : "hidden"}`}
       >
         <ul className="flex flex-col justify-center items-end gap-1">
           <li>

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export const GET = async (req, res) => {
     const alchemy = new Alchemy({ apiKey: process.env.ALCHEMY_API_KEY, network: Network.ETH_MAINNET })
     const communities = []
+    // FIXME: Use real address in production
     const nftsOwned = await alchemy.nft.getNftsForOwner("vitalik.eth")
     for (const nft of nftsOwned.ownedNfts) {
         const metadata = {

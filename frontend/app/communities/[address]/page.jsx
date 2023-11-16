@@ -1,21 +1,38 @@
 'use client'
 
 import CreatePost from "@/components/CreatePost";
+import ExpandedPost from "@/components/ExpandedPost";
 import Loader from "@/components/Loader";
 import PostItem from "@/components/PostItem";
 import UserImage from "@/components/UserImage";
 import { Web3Context } from "@/context/Web3Context";
 import { formatAddress } from "@/util/helpers";
 import { useParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const CommunityHome = () => {
   const [loading, setLoading] = useState(true)
   const { isInitialized, account, user } = useContext(Web3Context);
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [expandedPost, setExpandedPost] = useState(null);
+  let expandedPostRef = useRef();
   const { address } = useParams();
 
+  useEffect(() => {
+    let handler = (e) => {
+      if (!expandedPostRef.current) return;
+      if (!expandedPostRef.current.contains(e.target)) {
+        setExpandedPost(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  });
+  
   const createCommunity = async () => {
     try {
       if (!account) throw "You must be signed in. Address cannot be null!";
@@ -61,6 +78,10 @@ const CommunityHome = () => {
     }
   };
 
+  const handleClick = (post) => {
+    setExpandedPost(post);
+  }
+
   useEffect(() => {
     if (!isInitialized) return;
     fetchCommunity();
@@ -81,6 +102,7 @@ const CommunityHome = () => {
                     {posts && posts.map((post, i) => (
                       <PostItem
                         key={i}
+                        handleClick={handleClick}
                         post={post}
                         user={post.author}
                       />
@@ -106,9 +128,12 @@ const CommunityHome = () => {
               <div className="flex-1 flex justify-between">
                 <h1 className="text-3xl font-bold text-fire">Community has not been created yet</h1>
                 <button type="button" onClick={createCommunity} className="action-button h-min">Begin community 😄</button>
-              </div>}
+              </div>
+            }
           </div>
-
+      }
+      {expandedPost != null &&
+        createPortal(<ExpandedPost expandedPostRef={expandedPostRef} post={expandedPost.post} user={expandedPost.user}  setPost={setExpandedPost} />, document.body)
       }
     </main>
   );

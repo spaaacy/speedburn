@@ -35,7 +35,7 @@ const CreatePost = ({ communityId }) => {
         >
           <input placeholder="Title" className="rounded-lg p-3" type="text" onChange={(e) => setTitle(e.target.value)} />
           <textarea
-            className="p-3 rounded-lg flex-auto"
+            className="p-3 rounded-lg flex-auto resize-none"
             placeholder="Body"
             type="text"
             onChange={(e) => setBody(e.target.value)}
